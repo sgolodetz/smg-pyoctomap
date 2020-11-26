@@ -86,6 +86,12 @@ PYBIND11_MODULE(pyoctomap, m)
     .def(py::init<>(), py::call_guard<py::gil_scoped_release>())
     .def("draw", &octomap::OcTreeDrawer::draw, py::call_guard<py::gil_scoped_release>())
     .def(
+      "enable_freespace",
+      &octomap::OcTreeDrawer::enableFreespace,
+      py::arg("enabled") = true,
+      py::call_guard<py::gil_scoped_release>()
+    )
+    .def(
       "set_octree",
       [](octomap::OcTreeDrawer& self, const octomap::OcTree& octree, const octomap::pose6d& origin, int map_id_)
       {
@@ -125,6 +131,7 @@ PYBIND11_MODULE(pyoctomap, m)
       py::call_guard<py::gil_scoped_release>()
     )
     .def(py::self + py::self)
+    .def(py::self * float())
     .def(py::self - py::self)
     .def(
       "__repr__",

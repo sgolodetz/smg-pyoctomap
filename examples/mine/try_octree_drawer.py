@@ -42,14 +42,12 @@ def main() -> None:
     origin: Vector3 = Vector3(half_voxel_size, half_voxel_size, half_voxel_size)
     offset: Vector3 = Vector3(voxel_size * 10, 0.0, 0.0)
 
-    for angle in np.linspace(0.0, 2 * math.pi, 8, endpoint=False):
-        angled_offset: Vector3 = offset.copy()
-        angled_offset.rotate_ip(0, 0, angle)
-        tree.insert_ray(origin, origin + angled_offset)
-
-    origin: Pose6D = Pose6D(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
     drawer: OcTreeDrawer = OcTreeDrawer()
-    drawer.set_octree(tree, origin)
+    drawer.enable_freespace()
+
+    origin_pose: Pose6D = Pose6D(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+    angles: np.ndarray = np.linspace(0.0, 2 * math.pi, 256, endpoint=False)
+    i: int = 0
 
     while True:
         for event in pygame.event.get():
@@ -57,8 +55,15 @@ def main() -> None:
                 pygame.quit()
                 sys.exit(0)
 
+        if i < len(angles):
+            angled_offset: Vector3 = offset.copy()
+            angled_offset.rotate_ip(0, 0, angles[i])
+            tree.insert_ray(origin, origin + angled_offset * (1 + i / (len(angles) - 1)))
+            drawer.set_octree(tree, origin_pose)
+            i += 1
+
         draw_frame(drawer)
-        pygame.time.wait(10)
+        pygame.time.wait(2048 // len(angles))
 
 
 if __name__ == "__main__":
