@@ -12,10 +12,6 @@ from typing import Tuple
 
 from pyoctomap import *
 
-cubeVertices = ((1,1,1),(1,1,-1),(1,-1,-1),(1,-1,1),(-1,1,1),(-1,-1,-1),(-1,-1,1),(-1,1,-1))
-cubeEdges = ((0,1),(0,3),(0,4),(1,2),(1,7),(2,5),(2,3),(3,6),(4,6),(4,7),(5,6),(5,7))
-cubeQuads = ((0,3,6,4),(2,5,6,3),(1,2,5,7),(1,0,4,7),(7,4,6,5),(2,3,0,1))
-
 
 def draw_frame(drawer: OcTreeDrawer) -> None:
     glClearColor(1.0, 1.0, 1.0, 1.0)
@@ -24,18 +20,6 @@ def draw_frame(drawer: OcTreeDrawer) -> None:
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
     glTranslatef(0.0, 0.0, -50.0)
-
-    # glColor3f(1.0, 0.0, 0.0)
-    # glBegin(GL_LINES)
-    # glVertex3f(0.0, 0.0, 0.0)
-    # glVertex3f(1000.0, 0.0, 0.0)
-    # glEnd()
-
-    # glBegin(GL_LINES)
-    # for cubeEdge in cubeEdges:
-    #     for cubeVertex in cubeEdge:
-    #         glVertex3fv(cubeVertices[cubeVertex])
-    # glEnd()
 
     drawer.draw()
 
@@ -48,10 +32,7 @@ def main() -> None:
     pygame.display.set_mode(window_size, pygame.DOUBLEBUF | pygame.OPENGL)
 
     glMatrixMode(GL_PROJECTION)
-    gluPerspective(45, (window_size[0] / window_size[1]), 0.1, 50.0)
-
-    ptr: np.ndarray = np.transpose(glGetFloatv(GL_PROJECTION_MATRIX))
-    print(ptr)
+    gluPerspective(45, (window_size[0] / window_size[1]), 0.1, 100.0)
 
     voxel_size: float = 1.0
     half_voxel_size: float = voxel_size / 2.0

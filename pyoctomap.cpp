@@ -84,16 +84,7 @@ PYBIND11_MODULE(pyoctomap, m)
 
   py::class_<octomap::OcTreeDrawer>(m, "OcTreeDrawer")
     .def(py::init<>(), py::call_guard<py::gil_scoped_release>())
-    //.def("draw", &octomap::OcTreeDrawer::draw, py::call_guard<py::gil_scoped_release>())
-    .def(
-      "draw",
-      [](octomap::OcTreeDrawer& self)
-      {
-        //glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
-        self.draw();
-      },
-      py::call_guard<py::gil_scoped_release>()
-    )
+    .def("draw", &octomap::OcTreeDrawer::draw, py::call_guard<py::gil_scoped_release>())
     .def(
       "set_octree",
       [](octomap::OcTreeDrawer& self, const octomap::OcTree& octree, const octomap::pose6d& origin, int map_id_)
