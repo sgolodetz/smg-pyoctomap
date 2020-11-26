@@ -8,6 +8,7 @@ namespace py = pybind11;
 #include <string>
 
 #include <octomap/octomap.h>
+#include <octovis/OcTreeDrawer.h>
 
 PYBIND11_MODULE(pyoctomap, m)
 {
@@ -76,6 +77,10 @@ PYBIND11_MODULE(pyoctomap, m)
       [](octomap::OcTree& t, const std::string& filename) { return t.writeBinary(filename); },
       py::call_guard<py::gil_scoped_release>()
     )
+  ;
+
+  py::class_<octomap::OcTreeDrawer>(m, "OcTreeDrawer")
+    .def(py::init<>(), py::call_guard<py::gil_scoped_release>())
   ;
 
   py::class_<octomap::OcTreeNode>(m, "OcTreeNode")
