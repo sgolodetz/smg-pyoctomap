@@ -1,5 +1,6 @@
 import numpy as np
 
+from OpenGL.GL import *
 from typing import Tuple
 
 from smg.pyoctomap import Pointcloud
@@ -61,3 +62,26 @@ class OctomapUtil:
         pcd.resize(valid_ws_points.shape[0])
         np.copyto(np.array(pcd, copy=False), valid_ws_points.reshape(-1))
         return pcd
+
+    @staticmethod
+    def set_projection_matrix(intrinsics: Tuple[float, float, float, float], width: int, height: int) -> None:
+        """
+        TODO
+
+        :param intrinsics:  TODO
+        :param width:       TODO
+        :param height:      TODO
+        """
+        near_val: float = 0.1
+        far_val: float = 1000.0
+
+        # To rederive these equations, use similar triangles. Note that fx = f / sx and fy = f / sy,
+        # where sx and sy are the dimensions of a pixel on the image plane.
+        fx, fy, cx, cy = intrinsics
+        left_val: float = -cx * near_val / fx
+        right_val: float = (width - cx) * near_val / fx
+        bottom_val: float = -cy * near_val / fy
+        top_val: float = (height - cy) * near_val / fy
+
+        glLoadIdentity()
+        glFrustum(left_val, right_val, bottom_val, top_val, near_val, far_val)

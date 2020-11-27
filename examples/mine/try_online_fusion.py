@@ -56,14 +56,15 @@ def main() -> None:
     glEnable(GL_DEPTH_TEST)
     glDepthFunc(GL_LESS)
 
+    intrinsics: Tuple[float, float, float, float] = (532.5694641250893, 531.5410880910171, 320.0, 240.0)
+
     glMatrixMode(GL_PROJECTION)
-    gluPerspective(45, (window_size[0] / window_size[1]), 0.1, 1000.0)
+    # gluPerspective(45, (window_size[0] / window_size[1]), 0.1, 1000.0)
+    OctomapUtil.set_projection_matrix(intrinsics, window_size[0], window_size[1])
 
     drawer: OcTreeDrawer = OcTreeDrawer()
     # drawer.enable_freespace()
     drawer.set_color_mode(CM_COLOR_HEIGHT)
-
-    intrinsics: Tuple[float, float, float, float] = (532.5694641250893, 531.5410880910171, 320.0, 240.0)
 
     voxel_size: float = 0.05
     tree: OcTree = OcTree(voxel_size)
