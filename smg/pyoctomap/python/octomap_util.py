@@ -36,23 +36,24 @@ class OctomapUtil:
             ws_points[:, :, i] = pose[i, 0] * al + pose[i, 1] * bl + pose[i, 2] * depth_image
 
     @staticmethod
-    def make_point_cloud(depth_image: np.ndarray, intrinsics: Tuple[float, float, float, float]) -> Pointcloud:
+    def make_point_cloud(depth_image: np.ndarray, intrinsics: Tuple[float, float, float, float],
+                         pose: np.ndarray = np.eye(4)) -> Pointcloud:
         """
         Make an Octomap point cloud from a depth image.
 
         :param depth_image: The depth image.
         :param intrinsics:  The camera intrinsics.
+        :param pose:        The camera pose.
         :return:            The Octomap point cloud.
         """
-        # Back-project the depth image to make a camera-space points image.
+        # Back-project the depth image to make a world-space points image.
         height, width = depth_image.shape
-        pose: np.ndarray = np.eye(4)
-        cs_points: np.ndarray = np.zeros((height, width, 3), dtype=float)
-        OctomapUtil.compute_world_points_image(depth_image, pose, intrinsics, cs_points)
+        ws_points: np.ndarray = np.zeros((height, width, 3), dtype=float)
+        OctomapUtil.compute_world_points_image(depth_image, pose, intrinsics, ws_points)
 
-        # Convert the camera-space points image to a 1D array containing only the valid points.
+        # Convert the world-space points image to a 1D array containing only the valid points.
         flat_mask: np.ndarray = np.where(depth_image != 0, 255, 0).reshape(height * width).astype(np.uint8)
-        flat_ws_points: np.ndarray = cs_points.reshape((height * width, 3))
+        flat_ws_points: np.ndarray = ws_points.reshape((height * width, 3))
         valid_ws_points: np.ndarray = np.compress(flat_mask, flat_ws_points, axis=0)
 
         # Copy the valid points across to the Octomap point cloud, and return it.
