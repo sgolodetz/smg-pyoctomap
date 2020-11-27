@@ -7,6 +7,7 @@ import pygame
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
+from timeit import default_timer as timer
 from typing import Tuple
 
 from smg.pyoctomap import *
@@ -104,7 +105,10 @@ def main() -> None:
         pcd: Pointcloud = OctomapUtil.make_point_cloud(depth_image, pose, intrinsics)
 
         # Fuse it into the octree.
+        start = timer()
         tree.insert_point_cloud(pcd, origin)
+        end = timer()
+        print(f"  - Time: {end - start}s")
 
         # Increment the frame index.
         frame_idx += 1
