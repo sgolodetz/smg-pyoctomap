@@ -11,14 +11,14 @@ from smg.utility import ImageUtil, PoseUtil
 def main() -> None:
     intrinsics: Tuple[float, float, float, float] = (532.5694641250893, 531.5410880910171, 320.0, 240.0)
 
-    voxel_size: float = 0.05
+    voxel_size: float = 0.025
     tree: OcTree = OcTree(voxel_size)
     origin: Vector3 = Vector3(0.0, 0.0, 0.0)
 
     sequence_dir: str = "C:/spaint/build/bin/apps/spaintgui/sequences/Test"
     frame_idx: int = 0
 
-    while frame_idx < 100:
+    while True:
         # Try to load the next frame from disk.
         colour_filename: str = os.path.join(sequence_dir, f"frame-{frame_idx:06d}.color.png")
         depth_filename: str = os.path.join(sequence_dir, f"frame-{frame_idx:06d}.depth.png")
@@ -45,7 +45,7 @@ def main() -> None:
 
         # Fuse it into the octree.
         start = timer()
-        tree.insert_point_cloud(pcd, origin)
+        tree.insert_point_cloud(pcd, origin, discretize=True)
         end = timer()
         print(f"  - Time: {end - start}s")
 
