@@ -31,9 +31,8 @@ def compute_world_points_image(depth_image: np.ndarray, pose: np.ndarray, fx: fl
     yl = np.array(range(height))
     al = np.tile((xl - cx) / fx, height).reshape(height, width) * depth_image
     bl = np.transpose(np.tile((yl - cy) / fy, width).reshape(width, height)) * depth_image
-    ws_points[:, :, 0] = pose[0, 0] * al + pose[0, 1] * bl + pose[0, 2] * depth_image
-    ws_points[:, :, 1] = pose[1, 0] * al + pose[1, 1] * bl + pose[1, 2] * depth_image
-    ws_points[:, :, 2] = pose[2, 0] * al + pose[2, 1] * bl + pose[2, 2] * depth_image
+    for i in range(3):
+        ws_points[:, :, i] = pose[i, 0] * al + pose[i, 1] * bl + pose[i, 2] * depth_image
 
 
 def make_pcd_from_depth_image(depth_image: np.ndarray, fx: float, fy: float, cx: float, cy: float) -> Pointcloud():
