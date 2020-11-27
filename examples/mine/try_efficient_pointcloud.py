@@ -24,12 +24,26 @@ def make_pcd_faster(pcd, ws_points):
     print(pcd[pcd.size() - 1])
 
 
+def compute_world_points_image(depth_image: np.ndarray, pose: np.ndarray, fx: float, fy: float, cx: float, cy: float,
+                               ws_points: np.ndarray) -> None:
+    height, width = depth_image.shape
+    xl = np.array(range(width))
+    yl = np.array(range(height))
+    al = np.tile((xl - cx) / fx, height).reshape(height, width) * depth_image
+    bl = np.transpose(np.tile((yl - cy) / fy, width).reshape(width, height)) * depth_image
+    ws_points[:, :, 0] = pose[0, 0] * al + pose[0, 1] * bl + pose[0, 2] * depth_image
+    ws_points[:, :, 1] = pose[1, 0] * al + pose[1, 1] * bl + pose[1, 2] * depth_image
+    ws_points[:, :, 2] = pose[2, 0] * al + pose[2, 1] * bl + pose[2, 2] * depth_image
+
+
 def make_pcd_from_depth_image(depth_image: np.ndarray, fx: float, fy: float, cx: float, cy: float) -> Pointcloud():
     depth_mask: np.ndarray = np.where(depth_image != 0, 255, 0).astype(np.uint8)
     pose: np.ndarray = np.eye(4)
     height, width = depth_image.shape
     ws_points: np.ndarray = np.zeros((height, width, 3), dtype=float)
     # GeometryUtil.compute_world_points_image(depth_image, depth_mask, pose, fx, fy, cx, cy, ws_points)
+    compute_world_points_image(depth_image, pose, fx, fy, cx, cy, ws_points)
+    print(ws_points[0, 0])
 
     flat_ws_points: np.ndarray = ws_points.reshape((height * width, 3))
     flat_mask: np.ndarray = depth_mask.reshape(height * width)
