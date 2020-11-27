@@ -1,35 +1,28 @@
 import numpy as np
 
+from timeit import default_timer as timer
+from typing import Tuple
+
 from smg.pyoctomap import *
-from smg.utility import GeometryUtil, ImageUtil
+from smg.utility import ImageUtil
 
 
 def main() -> None:
     depth_image: np.ndarray = ImageUtil.load_depth_image(
         "C:/spaint/build/bin/apps/spaintgui/sequences/Test/frame-000000.depth.png"
     )
-
-    height, width = depth_image.shape
-    fx, fy, cx, cy = (532.5694641250893, 531.5410880910171, 320.0, 240.0)
-
-    depth_mask: np.ndarray = np.where(depth_image != 0, 255, 0).astype(np.uint8)
     pose: np.ndarray = np.eye(4)
-    ws_points: np.ndarray = np.zeros((height, width, 3), dtype=float)
-    GeometryUtil.compute_world_points_image(depth_image, depth_mask, pose, fx, fy, cx, cy, ws_points)
+    intrinsics: Tuple[float, float, float, float] = (532.5694641250893, 531.5410880910171, 320.0, 240.0)
+    pcd: Pointcloud = OctomapUtil.make_point_cloud(depth_image, pose, intrinsics)
 
-    pcd: Pointcloud = Pointcloud()
-
-    for y in range(height):
-        for x in range(width):
-            if depth_mask[y, x] != 0:
-                p: np.ndarray = ws_points[y, x]
-                pcd.push_back(Vector3(p[0], p[1], p[2]))
-
-    voxel_size: float = 0.005
+    voxel_size: float = 0.05
     tree: OcTree = OcTree(voxel_size)
-
     origin: Vector3 = Vector3(0.0, 0.0, 0.0)
+
+    start = timer()
     tree.insert_point_cloud(pcd, origin)
+    end = timer()
+    print(end - start)
 
     tree.write_binary("insert_depth_image.bt")
 
