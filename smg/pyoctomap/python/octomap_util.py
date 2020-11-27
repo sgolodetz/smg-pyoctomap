@@ -36,14 +36,14 @@ class OctomapUtil:
             ws_points[:, :, i] = pose[i, 0] * al + pose[i, 1] * bl + pose[i, 2] * depth_image
 
     @staticmethod
-    def make_point_cloud(depth_image: np.ndarray, intrinsics: Tuple[float, float, float, float],
+    def make_point_cloud(depth_image: np.ndarray, intrinsics: Tuple[float, float, float, float], *,
                          pose: np.ndarray = np.eye(4)) -> Pointcloud:
         """
         Make an Octomap point cloud from a depth image.
 
-        :param depth_image: The depth image.
-        :param intrinsics:  The camera intrinsics.
-        :param pose:        The camera pose.
+        :param depth_image: The depth image (pixels with zero depth are treated as invalid).
+        :param intrinsics:  The camera intrinsics, as an (fx, fy, cx, cy) tuple.
+        :param pose:        The camera pose (denoting a transformation from camera space to world space).
         :return:            The Octomap point cloud.
         """
         # Back-project the depth image to make a world-space points image.
