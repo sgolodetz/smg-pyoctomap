@@ -18,7 +18,7 @@ def main() -> None:
     sequence_dir: str = "C:/spaint/build/bin/apps/spaintgui/sequences/Test"
     frame_idx: int = 0
 
-    for i in range(5):
+    while frame_idx < 100:
         # Try to load the next frame from disk.
         colour_filename: str = os.path.join(sequence_dir, f"frame-{frame_idx:06d}.color.png")
         depth_filename: str = os.path.join(sequence_dir, f"frame-{frame_idx:06d}.depth.png")
@@ -38,7 +38,7 @@ def main() -> None:
 
         # Load the depth image and the pose.
         depth_image: np.ndarray = ImageUtil.load_depth_image(depth_filename)
-        pose: np.ndarray = np.linalg.inv(PoseUtil.load_pose(pose_filename))
+        pose: np.ndarray = PoseUtil.load_pose(pose_filename)
 
         # Use them to make an Octomap point cloud.
         pcd: Pointcloud = OctomapUtil.make_point_cloud(depth_image, pose, intrinsics)

@@ -45,6 +45,9 @@ def main() -> None:
     window_size: Tuple[int, int] = (640, 480)
     pygame.display.set_mode(window_size, pygame.DOUBLEBUF | pygame.OPENGL)
 
+    glEnable(GL_DEPTH_TEST)
+    glDepthFunc(GL_LESS)
+
     glMatrixMode(GL_PROJECTION)
     gluPerspective(45, (window_size[0] / window_size[1]), 0.1, 1000.0)
 
@@ -86,7 +89,7 @@ def main() -> None:
         draw_frame(drawer, height)
         pygame.time.wait(1)
 
-    tree.write_binary("octree_drawer.bt")
+    # tree.write_binary("octree_drawer.bt")
 
 
 if __name__ == "__main__":
