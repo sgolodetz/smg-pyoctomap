@@ -14,66 +14,76 @@ from smg.pyoctomap import *
 from smg.utility import ImageUtil, PoseUtil
 
 
-def draw_frame(drawer: OcTreeDrawer, pose: np.ndarray) -> None:
+def draw_octree(tree: OcTree, pose: np.ndarray, drawer: OcTreeDrawer) -> None:
+    """
+    Visualise the specified octree from the specified pose.
+
+    :param tree:    The octree.
+    :param pose:    The current pose.
+    :param drawer:  The octree drawer.
+    :return:
+    """
+    # Clear the buffers.
     glClearColor(1.0, 1.0, 1.0, 1.0)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
+    # Set the model-view matrix.
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
-    # print(glGetFloatv(GL_MODELVIEW_MATRIX))
-    print(pose)
-    # gluLookAt(0.0, -height * 1.5, height, 0.0, 0.0, height / 2, 0.0, 0.0, 1.0)
-    # gluLookAt(0.0, -1.0, -2.0, 0.0, 0.0, 1.0, 0.0, -1.0, 0.0)
     gluLookAt(0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, -1.0, 0.0)
     glMultMatrixf(np.linalg.inv(pose).flatten(order='F'))
-    # glLoadMatrixf(np.linalg.inv(pose))
-    print(np.transpose(glGetFloatv(GL_MODELVIEW_MATRIX)))
 
+    # Enable blending, lighting and materials.
     glEnable(GL_BLEND)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
     glEnable(GL_LIGHTING)
     glEnable(GL_LIGHT0)
-    # pos: np.ndarray = np.array([-1.0, 1.0, 1.0, 0.0])
     pos: np.ndarray = np.array([0.0, 2.0, -1.0, 0.0])
     glLightfv(GL_LIGHT0, GL_POSITION, pos)
 
     glEnable(GL_COLOR_MATERIAL)
 
+    # Draw the octree.
+    origin_pose: Pose6D = Pose6D(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+    drawer.set_octree(tree, origin_pose)
     drawer.draw()
 
+    # Disable blending, lighting and materials again.
     glDisable(GL_COLOR_MATERIAL)
     glDisable(GL_LIGHTING)
     glDisable(GL_BLEND)
 
-    pygame.display.flip()
-
 
 def main() -> None:
+    """The main function."""
+    # Initialise PyGame and create the window.
     pygame.init()
     window_size: Tuple[int, int] = (640, 480)
     pygame.display.set_mode(window_size, pygame.DOUBLEBUF | pygame.OPENGL)
 
+    # Set the projection matrix.
+    glMatrixMode(GL_PROJECTION)
+    intrinsics: Tuple[float, float, float, float] = (532.5694641250893, 531.5410880910171, 320.0, 240.0)
+    OctomapUtil.set_projection_matrix(intrinsics, *window_size)
+
+    # Enable the z-buffer.
     glEnable(GL_DEPTH_TEST)
     glDepthFunc(GL_LESS)
 
-    intrinsics: Tuple[float, float, float, float] = (532.5694641250893, 531.5410880910171, 320.0, 240.0)
-
-    glMatrixMode(GL_PROJECTION)
-    OctomapUtil.set_projection_matrix(intrinsics, window_size[0], window_size[1])
-
+    # Set up the octree drawer.
     drawer: OcTreeDrawer = OcTreeDrawer()
-    # drawer.enable_freespace()
     drawer.set_color_mode(CM_COLOR_HEIGHT)
 
+    # Create the octree.
     voxel_size: float = 0.05
     tree: OcTree = OcTree(voxel_size)
-    origin: Vector3 = Vector3(0.0, 0.0, 0.0)
 
+    # Until the sequence is finished:
     sequence_dir: str = "C:/spaint/build/bin/apps/spaintgui/sequences/Test2"
     frame_idx: int = 0
-
-    while True:  # frame_idx < 100:
+    while True:
+        # Process any PyGame events.
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -103,21 +113,23 @@ def main() -> None:
         # Use them to make an Octomap point cloud.
         pcd: Pointcloud = OctomapUtil.make_point_cloud(depth_image, pose, intrinsics)
 
-        # Fuse it into the octree.
+        # Fuse the point cloud into the octree.
         start = timer()
+        origin: Vector3 = Vector3(0.0, 0.0, 0.0)
         tree.insert_point_cloud(pcd, origin, discretize=True)
         end = timer()
         print(f"  - Time: {end - start}s")
 
+        # Draw the octree.
+        draw_octree(tree, pose, drawer)
+
+        # Swap the buffers.
+        pygame.display.flip()
+
         # Increment the frame index.
         frame_idx += 1
 
-        # Visualise the octree.
-        origin_pose: Pose6D = Pose6D(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-        drawer.set_octree(tree, origin_pose)
-        draw_frame(drawer, pose)
-        pygame.time.wait(1)
-
+    # Finally, save the octree to a file for later use.
     tree.write_binary("online_fusion.bt")
 
 
