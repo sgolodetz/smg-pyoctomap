@@ -91,6 +91,7 @@ PYBIND11_MODULE(pyoctomap, m)
       py::arg("enabled") = true,
       py::call_guard<py::gil_scoped_release>()
     )
+    .def("set_color_mode", &octomap::OcTreeDrawer::setColorMode, py::call_guard<py::gil_scoped_release>())
     .def(
       "set_octree",
       [](octomap::OcTreeDrawer& self, const octomap::OcTree& octree, const octomap::pose6d& origin, int map_id_)
@@ -144,5 +145,16 @@ PYBIND11_MODULE(pyoctomap, m)
     .def("copy", [](const octomath::Vector3& self) { return octomath::Vector3(self); }, py::call_guard<py::gil_scoped_release>())
     .def("norm", &octomath::Vector3::norm, py::call_guard<py::gil_scoped_release>())
     .def("rotate_ip", &octomath::Vector3::rotate_IP, py::call_guard<py::gil_scoped_release>())
+  ;
+
+  // ENUMERATIONS
+
+  py::enum_<octomap::SceneObject::ColorMode>(m, "EColorMode")
+    .value("CM_FLAT", octomap::SceneObject::CM_FLAT)
+    .value("CM_PRINTOUT", octomap::SceneObject::CM_PRINTOUT)
+    .value("CM_COLOR_HEIGHT", octomap::SceneObject::CM_COLOR_HEIGHT)
+    .value("CM_GRAY_HEIGHT", octomap::SceneObject::CM_GRAY_HEIGHT)
+    .value("CM_SEMANTIC", octomap::SceneObject::CM_SEMANTIC)
+    .export_values()
   ;
 }

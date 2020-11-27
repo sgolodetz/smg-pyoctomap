@@ -19,7 +19,7 @@ def draw_frame(drawer: OcTreeDrawer, height: float) -> None:
 
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
-    gluLookAt(0.0, -height * 2, height / 2, 0.0, 0.0, height / 2, 0.0, 0.0, 1.0)
+    gluLookAt(0.0, -height * 1.5, height, 0.0, 0.0, height / 2, 0.0, 0.0, 1.0)
 
     glEnable(GL_BLEND)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
@@ -33,6 +33,7 @@ def draw_frame(drawer: OcTreeDrawer, height: float) -> None:
 
     drawer.draw()
 
+    glDisable(GL_COLOR_MATERIAL)
     glDisable(GL_LIGHTING)
     glDisable(GL_BLEND)
 
@@ -57,6 +58,7 @@ def main() -> None:
 
     drawer: OcTreeDrawer = OcTreeDrawer()
     drawer.enable_freespace()
+    drawer.set_color_mode(CM_COLOR_HEIGHT)
 
     origin_pose: Pose6D = Pose6D(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
     angles: np.ndarray = np.linspace(0.0, 10 * math.pi, 1024, endpoint=False)
