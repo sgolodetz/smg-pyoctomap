@@ -146,6 +146,7 @@ PYBIND11_MODULE(pyoctomap, m)
       },
       py::call_guard<py::gil_scoped_release>()
     )
+    .def("reserve", &octomap::Pointcloud::reserve, py::call_guard<py::gil_scoped_release>())
     .def(
       "resize",
       [](octomap::Pointcloud& self, size_t newSize)
@@ -154,7 +155,6 @@ PYBIND11_MODULE(pyoctomap, m)
       },
       py::call_guard<py::gil_scoped_release>()
     )
-    .def("reserve", &octomap::Pointcloud::reserve, py::call_guard<py::gil_scoped_release>())
     .def("size", &octomap::Pointcloud::size, py::call_guard<py::gil_scoped_release>())
   ;
 
