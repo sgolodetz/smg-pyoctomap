@@ -52,7 +52,7 @@ def draw_frame(drawer: OcTreeDrawer, pose: np.ndarray) -> None:
 def main() -> None:
     pygame.init()
     window_size: Tuple[int, int] = (640, 480)
-    pygame.display.set_mode(window_size, pygame.DOUBLEBUF | pygame.OPENGL, depth=32)
+    pygame.display.set_mode(window_size, pygame.DOUBLEBUF | pygame.OPENGL)
 
     glEnable(GL_DEPTH_TEST)
     glDepthFunc(GL_LESS)
@@ -60,7 +60,6 @@ def main() -> None:
     intrinsics: Tuple[float, float, float, float] = (532.5694641250893, 531.5410880910171, 320.0, 240.0)
 
     glMatrixMode(GL_PROJECTION)
-    # gluPerspective(45, (window_size[0] / window_size[1]), 0.1, 1000.0)
     OctomapUtil.set_projection_matrix(intrinsics, window_size[0], window_size[1])
 
     drawer: OcTreeDrawer = OcTreeDrawer()
@@ -74,7 +73,7 @@ def main() -> None:
     sequence_dir: str = "C:/spaint/build/bin/apps/spaintgui/sequences/Test2"
     frame_idx: int = 0
 
-    while frame_idx < 100:
+    while True:  # frame_idx < 100:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -106,7 +105,7 @@ def main() -> None:
 
         # Fuse it into the octree.
         start = timer()
-        tree.insert_point_cloud(pcd, origin)
+        tree.insert_point_cloud(pcd, origin, discretize=True)
         end = timer()
         print(f"  - Time: {end - start}s")
 
