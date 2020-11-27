@@ -10,7 +10,7 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 from typing import Tuple
 
-from pyoctomap import *
+from smg.pyoctomap import *
 
 
 def draw_frame(drawer: OcTreeDrawer, height: float) -> None:

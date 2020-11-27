@@ -7,6 +7,9 @@ namespace py = pybind11;
 
 #include <string>
 
+// Note: This is evil, but the only way I know of to get at Pointcloud::points to resize it without changing Octomap itself.
+#define protected public
+
 #include <octomap/octomap.h>
 #include <octovis/OcTreeDrawer.h>
 
@@ -107,15 +110,52 @@ PYBIND11_MODULE(pyoctomap, m)
     .def("get_occupancy", &octomap::OcTreeNode::getOccupancy, py::call_guard<py::gil_scoped_release>())
   ;
 
-  py::class_<octomap::Pointcloud>(m, "Pointcloud")
+  py::class_<octomap::Pointcloud>(m, "Pointcloud", pybind11::buffer_protocol())
+    .def_buffer([](octomap::Pointcloud& pcd) -> pybind11::buffer_info {
+      return pybind11::buffer_info(
+        &pcd[0](0),
+        sizeof(float),
+        pybind11::format_descriptor<float>::format(),
+        1,
+        { pcd.size() * 3 },
+        { sizeof(float) }
+      );
+    })
     .def(py::init<>(), py::call_guard<py::gil_scoped_release>())
     .def(
-      "push_back", [](octomap::Pointcloud& self, const octomap::point3d& p)
+      "__getitem__",
+      [](const octomap::Pointcloud& self, size_t i)
+      {
+        return self[i];
+      },
+      py::call_guard<py::gil_scoped_release>()
+    )
+    .def(
+      "__setitem__",
+      [](octomap::Pointcloud& self, size_t i, const octomath::Vector3& v)
+      {
+        self[i] = v;
+      },
+      py::call_guard<py::gil_scoped_release>()
+    )
+    .def(
+      "push_back",
+      [](octomap::Pointcloud& self, const octomap::point3d& p)
       {
         self.push_back(p);
       },
       py::call_guard<py::gil_scoped_release>()
     )
+    .def(
+      "resize",
+      [](octomap::Pointcloud& self, size_t newSize)
+      {
+        self.points.resize(newSize);
+      },
+      py::call_guard<py::gil_scoped_release>()
+    )
+    .def("reserve", &octomap::Pointcloud::reserve, py::call_guard<py::gil_scoped_release>())
+    .def("size", &octomap::Pointcloud::size, py::call_guard<py::gil_scoped_release>())
   ;
 
   py::class_<octomath::Pose6D>(m, "Pose6D")
