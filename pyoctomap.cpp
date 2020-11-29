@@ -10,12 +10,50 @@ namespace py = pybind11;
 // Note: This is evil, but the only way I know of to get at Pointcloud::points to resize it without changing Octomap itself.
 #define protected public
 
+#include <octomap/ColorOcTree.h>
 #include <octomap/octomap.h>
 #include <octovis/OcTreeDrawer.h>
 
 PYBIND11_MODULE(pyoctomap, m)
 {
   // CLASSES
+
+  py::class_<octomap::ColorOcTree>(m, "ColorOcTree")
+    .def(py::init<double>(), py::call_guard<py::gil_scoped_release>())
+    .def(
+      "compute_discrete_update",
+      [](octomap::ColorOcTree& self, const octomap::Pointcloud& scan, const octomap::point3d& origin, double maxrange)
+      {
+        octomap::KeySet free_cells, occupied_cells;
+        self.computeDiscreteUpdate(scan, origin, free_cells, occupied_cells, maxrange);
+        // TODO
+      },
+      py::call_guard<py::gil_scoped_release>()
+    )
+    .def("prune", &octomap::ColorOcTree::prune, py::call_guard<py::gil_scoped_release>())
+    .def("size", &octomap::ColorOcTree::size, py::call_guard<py::gil_scoped_release>())
+    .def("update_inner_occupancy", &octomap::ColorOcTree::updateInnerOccupancy, py::call_guard<py::gil_scoped_release>())
+    .def(
+      "update_node",
+      [](octomap::ColorOcTree& self, const octomap::point3d& value, bool occupied, bool lazy_eval)
+      {
+        return self.updateNode(value, occupied, lazy_eval);
+      },
+      py::arg("value"), py::arg("occupied"), py::arg("lazy_eval") = false,
+      py::return_value_policy::reference, py::call_guard<py::gil_scoped_release>()
+    )
+  ;
+
+  py::class_<octomap::ColorOcTreeNode>(m, "ColorOcTreeNode")
+    .def(
+      "set_color",
+      [](octomap::ColorOcTreeNode& self, uint8_t r, uint8_t g, uint8_t b)
+      {
+        self.setColor(r, g, b);
+      },
+      py::call_guard<py::gil_scoped_release>()
+    )
+  ;
 
   py::class_<octomap::OcTree>(m, "OcTree")
     .def(py::init<double>(), py::call_guard<py::gil_scoped_release>())
@@ -28,6 +66,17 @@ PYBIND11_MODULE(pyoctomap, m)
         return self.castRay(origin, direction, end, ignoreUnknownCells, maxRange);
       },
       py::arg("origin"), py::arg("direction"), py::arg("end"), py::arg("ignoreUnknownCells") = false, py::arg("maxRange") = -1.0,
+      py::call_guard<py::gil_scoped_release>()
+    )
+    .def(
+      "compute_discrete_update",
+      [](octomap::OcTree& self, const octomap::Pointcloud& scan, const octomap::point3d& origin, double maxrange)
+      {
+        octomap::KeySet free_cells, occupied_cells;
+        self.computeDiscreteUpdate(scan, origin, free_cells, occupied_cells, maxrange);
+        // TODO
+      },
+      py::arg("scan"), py::arg("origin"), py::arg("maxrange") = -1.0,
       py::call_guard<py::gil_scoped_release>()
     )
     .def(
