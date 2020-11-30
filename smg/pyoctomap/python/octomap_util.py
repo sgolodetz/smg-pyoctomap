@@ -47,10 +47,6 @@ class OctomapUtil:
         :param drawer:  The octree drawer.
         :return:
         """
-        # Clear the buffers.
-        glClearColor(1.0, 1.0, 1.0, 1.0)
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-
         # Set the model-view matrix.
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()

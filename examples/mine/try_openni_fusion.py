@@ -77,10 +77,14 @@ def main() -> None:
                 end = timer()
                 print(f"  - Time: {end - start}s")
 
+                # Clear the colour and depth buffers.
+                glClearColor(1.0, 1.0, 1.0, 1.0)
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
                 # Draw the octree.
                 OctomapUtil.draw_octree(tree, pose, drawer)
 
-                # Swap the buffers.
+                # Swap the front and back buffers.
                 pygame.display.flip()
 
 
