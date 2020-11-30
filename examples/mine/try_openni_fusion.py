@@ -6,54 +6,12 @@ os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
 
 from OpenGL.GL import *
-from OpenGL.GLU import *
 from timeit import default_timer as timer
 from typing import Optional, Tuple
 
 from smg.openni import OpenNICamera
 from smg.pyoctomap import *
 from smg.pyorbslam2 import RGBDTracker
-
-
-def draw_octree(tree: OcTree, pose: np.ndarray, drawer: OcTreeDrawer) -> None:
-    """
-    Visualise the specified octree from the specified pose.
-
-    :param tree:    The octree.
-    :param pose:    The current pose.
-    :param drawer:  The octree drawer.
-    :return:
-    """
-    # Clear the buffers.
-    glClearColor(1.0, 1.0, 1.0, 1.0)
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-
-    # Set the model-view matrix.
-    glMatrixMode(GL_MODELVIEW)
-    glLoadIdentity()
-    gluLookAt(0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, -1.0, 0.0)
-    glMultMatrixf(np.linalg.inv(pose).flatten(order='F'))
-
-    # Enable blending, lighting and materials.
-    glEnable(GL_BLEND)
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-
-    glEnable(GL_LIGHTING)
-    glEnable(GL_LIGHT0)
-    pos: np.ndarray = np.array([0.0, 2.0, -1.0, 0.0])
-    glLightfv(GL_LIGHT0, GL_POSITION, pos)
-
-    glEnable(GL_COLOR_MATERIAL)
-
-    # Draw the octree.
-    origin_pose: Pose6D = Pose6D(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-    drawer.set_octree(tree, origin_pose)
-    drawer.draw()
-
-    # Disable blending, lighting and materials again.
-    glDisable(GL_COLOR_MATERIAL)
-    glDisable(GL_LIGHTING)
-    glDisable(GL_BLEND)
 
 
 def main() -> None:
@@ -121,7 +79,7 @@ def main() -> None:
                 print(f"  - Time: {end - start}s")
 
                 # Draw the octree.
-                draw_octree(tree, pose, drawer)
+                OctomapUtil.draw_octree(tree, pose, drawer)
 
                 # Swap the buffers.
                 pygame.display.flip()

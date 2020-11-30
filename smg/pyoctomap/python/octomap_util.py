@@ -1,9 +1,10 @@
 import numpy as np
 
 from OpenGL.GL import *
+from OpenGL.GLU import *
 from typing import Tuple
 
-from smg.pyoctomap import Pointcloud
+from smg.pyoctomap import OcTree, OcTreeDrawer, Pointcloud, Pose6D
 
 
 class OctomapUtil:
@@ -35,6 +36,47 @@ class OctomapUtil:
         bl = np.transpose(np.tile((yl - cy) / fy, width).reshape(width, height)) * depth_image
         for i in range(3):
             ws_points[:, :, i] = pose[i, 0] * al + pose[i, 1] * bl + pose[i, 2] * depth_image
+
+    @staticmethod
+    def draw_octree(tree: OcTree, pose: np.ndarray, drawer: OcTreeDrawer) -> None:
+        """
+        Visualise the specified octree from the specified pose.
+
+        :param tree:    The octree.
+        :param pose:    The current pose.
+        :param drawer:  The octree drawer.
+        :return:
+        """
+        # Clear the buffers.
+        glClearColor(1.0, 1.0, 1.0, 1.0)
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+        # Set the model-view matrix.
+        glMatrixMode(GL_MODELVIEW)
+        glLoadIdentity()
+        gluLookAt(0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, -1.0, 0.0)
+        glMultMatrixf(np.linalg.inv(pose).flatten(order='F'))
+
+        # Enable blending, lighting and materials.
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
+        glEnable(GL_LIGHTING)
+        glEnable(GL_LIGHT0)
+        pos: np.ndarray = np.array([0.0, 2.0, -1.0, 0.0])
+        glLightfv(GL_LIGHT0, GL_POSITION, pos)
+
+        glEnable(GL_COLOR_MATERIAL)
+
+        # Draw the octree.
+        origin_pose: Pose6D = Pose6D(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+        drawer.set_octree(tree, origin_pose)
+        drawer.draw()
+
+        # Disable blending, lighting and materials again.
+        glDisable(GL_COLOR_MATERIAL)
+        glDisable(GL_LIGHTING)
+        glDisable(GL_BLEND)
 
     @staticmethod
     def make_point_cloud(depth_image: np.ndarray, pose: np.ndarray, intrinsics: Tuple[float, float, float, float]) \
