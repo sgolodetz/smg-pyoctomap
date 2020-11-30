@@ -137,11 +137,11 @@ class OctomapUtil:
     @staticmethod
     def set_projection_matrix(intrinsics: Tuple[float, float, float, float], width: int, height: int) -> None:
         """
-        TODO
+        Set the OpenGL projection matrix based on a set of camera intrinsics.
 
-        :param intrinsics:  TODO
-        :param width:       TODO
-        :param height:      TODO
+        :param intrinsics:  The camera intrinsics.
+        :param width:       The width of the viewport.
+        :param height:      The height of the viewport.
         """
         near_val: float = 0.1
         far_val: float = 1000.0
