@@ -15,7 +15,6 @@ from smg.pyorbslam2 import RGBDTracker
 
 
 def main() -> None:
-    """The main function."""
     # Initialise PyGame and create the window.
     pygame.init()
     window_size: Tuple[int, int] = (640, 480)
@@ -52,7 +51,7 @@ def main() -> None:
                         # noinspection PyProtectedMember
                         os._exit(0)
 
-                # # Get an RGB-D image from the camera.
+                # Get an RGB-D image from the camera.
                 colour_image, depth_image = camera.get_images()
                 cv2.imshow("Image", colour_image)
                 c: int = cv2.waitKey(1)

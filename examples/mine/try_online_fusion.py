@@ -14,7 +14,6 @@ from smg.utility import ImageUtil, PoseUtil
 
 
 def main() -> None:
-    """The main function."""
     # Initialise PyGame and create the window.
     pygame.init()
     window_size: Tuple[int, int] = (640, 480)
