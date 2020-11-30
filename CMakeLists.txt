@@ -15,6 +15,9 @@ SET(targetname pyoctomap)
 ################################
 
 INCLUDE(${PROJECT_SOURCE_DIR}/cmake/UseOctomap.cmake)
+INCLUDE(${PROJECT_SOURCE_DIR}/cmake/UseOpenGL.cmake)
+INCLUDE(${PROJECT_SOURCE_DIR}/cmake/UseQGLViewer.cmake)
+INCLUDE(${PROJECT_SOURCE_DIR}/cmake/UseQt5.cmake)
 
 ##########################################
 # Specify additional include directories #
@@ -35,6 +38,9 @@ SET_TARGET_PROPERTIES(${targetname} PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}" 
 
 TARGET_LINK_LIBRARIES(${targetname} debug pybind11::module optimized pybind11::module)
 INCLUDE(${PROJECT_SOURCE_DIR}/cmake/LinkOctomap.cmake)
+INCLUDE(${PROJECT_SOURCE_DIR}/cmake/LinkOpenGL.cmake)
+INCLUDE(${PROJECT_SOURCE_DIR}/cmake/LinkQGLViewer.cmake)
+INCLUDE(${PROJECT_SOURCE_DIR}/cmake/LinkQt5.cmake)
 
 ##########################################
 # Copy resource files to the right place #

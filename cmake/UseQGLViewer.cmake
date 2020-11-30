@@ -1,0 +1,10 @@
+######################
+# UseQGLViewer.cmake #
+######################
+
+SET(QGLVIEWER_DIR "${PROJECT_SOURCE_DIR}/../../octomap/octovis/src/extern/QGLViewer" CACHE PATH "The QGLViewer directory")
+
+FIND_LIBRARY(QGLVIEWER_LIBRARY_DEBUG QGLViewerd2 HINTS "${QGLVIEWER_DIR}")
+FIND_LIBRARY(QGLVIEWER_LIBRARY_RELEASE QGLViewer2 HINTS "${QGLVIEWER_DIR}")
+
+SET(QGLVIEWER_LIBRARY debug ${QGLVIEWER_LIBRARY_DEBUG} optimized ${QGLVIEWER_LIBRARY_RELEASE})
