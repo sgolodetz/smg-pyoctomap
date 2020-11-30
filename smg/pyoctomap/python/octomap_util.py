@@ -52,7 +52,7 @@ class OctomapUtil:
         ws_points: np.ndarray = np.zeros((height, width, 3), dtype=float)
         OctomapUtil.compute_world_points_image(depth_image, pose, intrinsics, ws_points)
 
-        # Convert the world-space points image to a 1D array containing only the valid points.
+        # Convert the world-space points image to a flat array containing only the valid points.
         flat_mask: np.ndarray = np.where(depth_image != 0, 255, 0).reshape(height * width).astype(np.uint8)
         flat_ws_points: np.ndarray = ws_points.reshape((height * width, 3))
         valid_ws_points: np.ndarray = np.compress(flat_mask, flat_ws_points, axis=0)
@@ -62,6 +62,39 @@ class OctomapUtil:
         pcd.resize(valid_ws_points.shape[0])
         np.copyto(np.array(pcd, copy=False), valid_ws_points.reshape(-1))
         return pcd
+
+    @staticmethod
+    def make_rgbd_point_cloud(rgb_image: np.ndarray, depth_image: np.ndarray, pose: np.ndarray,
+                              intrinsics: Tuple[float, float, float, float]) -> Tuple[Pointcloud, np.ndarray]:
+        """
+        Make a coloured Octomap point cloud from an RGB image and a depth image.
+
+        :param rgb_image:   The RGB image.
+        :param depth_image: The depth image (pixels with zero depth are treated as invalid).
+        :param pose:        The camera pose (denoting a transformation from camera space to world space).
+        :param intrinsics:  The camera intrinsics, as an (fx, fy, cx, cy) tuple.
+        :return:            A tuple consisting of an uncoloured Octomap point cloud and a matching array of colours.
+        """
+        # Back-project the depth image to make a world-space points image.
+        height, width = depth_image.shape
+        ws_points: np.ndarray = np.zeros((height, width, 3), dtype=float)
+        OctomapUtil.compute_world_points_image(depth_image, pose, intrinsics, ws_points)
+
+        # Convert the world-space points image to a flat array containing only the valid points.
+        flat_mask: np.ndarray = np.where(depth_image != 0, 255, 0).reshape(height * width).astype(np.uint8)
+        flat_ws_points: np.ndarray = ws_points.reshape((height * width, 3))
+        valid_ws_points: np.ndarray = np.compress(flat_mask, flat_ws_points, axis=0)
+
+        # Copy the valid points across to the Octomap point cloud.
+        pcd: Pointcloud = Pointcloud()
+        pcd.resize(valid_ws_points.shape[0])
+        np.copyto(np.array(pcd, copy=False), valid_ws_points.reshape(-1))
+
+        # Convert the RGB image to a flat array containing colours for only the valid points.
+        flat_colours: np.ndarray = rgb_image.reshape((height * width, 3))
+        valid_flat_colours: np.ndarray = np.compress(flat_mask, flat_colours, axis=0)
+
+        return pcd, valid_flat_colours
 
     @staticmethod
     def set_projection_matrix(intrinsics: Tuple[float, float, float, float], width: int, height: int) -> None:
