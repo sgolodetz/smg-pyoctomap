@@ -5,3 +5,4 @@ dist/
 smg/pyoctomap/cpp/
 *.bt
 *.egg-info/
+*.ot

@@ -21,13 +21,29 @@ PYBIND11_MODULE(pyoctomap, m)
   py::class_<octomap::ColorOcTree>(m, "ColorOcTree")
     .def(py::init<double>(), py::call_guard<py::gil_scoped_release>())
     .def(
-      "compute_discrete_update",
-      [](octomap::ColorOcTree& self, const octomap::Pointcloud& scan, const octomap::point3d& origin, double maxrange)
+      "insert_point_cloud",
+      [](octomap::ColorOcTree& self, const octomap::Pointcloud& scan, const octomap::point3d& sensor_origin,
+         double maxrange, bool lazy_eval, bool discretize)
       {
-        octomap::KeySet free_cells, occupied_cells;
-        self.computeDiscreteUpdate(scan, origin, free_cells, occupied_cells, maxrange);
         // TODO
+        octomap::KeySet free_cells, occupied_cells;
+        if (discretize)
+          self.computeDiscreteUpdate(scan, sensor_origin, free_cells, occupied_cells, maxrange);
+        else
+          self.computeUpdate(scan, sensor_origin, free_cells, occupied_cells, maxrange);
+
+        // insert data into tree  -----------------------
+        for (octomap::KeySet::iterator it = free_cells.begin(); it != free_cells.end(); ++it) {
+          self.updateNode(*it, false, lazy_eval);
+        }
+        for (octomap::KeySet::iterator it = occupied_cells.begin(); it != occupied_cells.end(); ++it) {
+          octomap::ColorOcTreeNode *n = self.updateNode(*it, true, lazy_eval);
+          n->setColor(255, 0, 0);
+        }
+
+        self.updateInnerOccupancy();
       },
+      py::arg("scan"), py::arg("sensor_origin"), py::arg("maxrange") = -1.0, py::arg("lazy_eval") = false, py::arg("discretize") = false,
       py::call_guard<py::gil_scoped_release>()
     )
     .def("prune", &octomap::ColorOcTree::prune, py::call_guard<py::gil_scoped_release>())
@@ -41,6 +57,14 @@ PYBIND11_MODULE(pyoctomap, m)
       },
       py::arg("value"), py::arg("occupied"), py::arg("lazy_eval") = false,
       py::return_value_policy::reference, py::call_guard<py::gil_scoped_release>()
+    )
+    .def(
+      "write",
+      [](octomap::ColorOcTree& self, const std::string& filename)
+      {
+        return self.write(filename);
+      },
+      py::call_guard<py::gil_scoped_release>()
     )
   ;
 
@@ -66,17 +90,6 @@ PYBIND11_MODULE(pyoctomap, m)
         return self.castRay(origin, direction, end, ignoreUnknownCells, maxRange);
       },
       py::arg("origin"), py::arg("direction"), py::arg("end"), py::arg("ignoreUnknownCells") = false, py::arg("maxRange") = -1.0,
-      py::call_guard<py::gil_scoped_release>()
-    )
-    .def(
-      "compute_discrete_update",
-      [](octomap::OcTree& self, const octomap::Pointcloud& scan, const octomap::point3d& origin, double maxrange)
-      {
-        octomap::KeySet free_cells, occupied_cells;
-        self.computeDiscreteUpdate(scan, origin, free_cells, occupied_cells, maxrange);
-        // TODO
-      },
-      py::arg("scan"), py::arg("origin"), py::arg("maxrange") = -1.0,
       py::call_guard<py::gil_scoped_release>()
     )
     .def(
