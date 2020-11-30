@@ -89,7 +89,7 @@ def main() -> None:
         draw_frame(drawer, height)
         pygame.time.wait(1)
 
-    # tree.write_binary("octree_drawer.bt")
+    tree.write_binary("octree_drawer.bt")
 
 
 if __name__ == "__main__":
