@@ -24,15 +24,16 @@ def main() -> None:
     origin: Vector3 = Vector3(0.0, 0.0, 0.0)
 
     start = timer()
+
     tree.insert_point_cloud(pcd, origin, discretize=True)
-    arr = np.array(pcd, copy=False).reshape(-1, 3)
-    for i in range(arr.shape[0]):
-        n: ColorOcTreeNode = tree.search(Vector3(*arr[i]))
+    points = np.array(pcd, copy=False).reshape(-1, 3)
+    for i in range(points.shape[0]):
+        n: ColorOcTreeNode = tree.search(Vector3(*points[i]))
         n.set_color(*colours[i])
+    tree.update_inner_occupancy()
+
     end = timer()
     print(end - start)
-
-    tree.update_inner_occupancy()
 
     tree.write("insert_rgbd_image.ot")
 
