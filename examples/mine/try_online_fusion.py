@@ -10,6 +10,9 @@ from timeit import default_timer as timer
 from typing import Tuple
 
 from smg.pyoctomap import *
+from smg.rigging.cameras import SimpleCamera
+from smg.rigging.controllers import KeyboardCameraController
+from smg.rigging.helpers import CameraPoseConverter
 from smg.utility import ImageUtil, PoseUtil
 
 
@@ -36,13 +39,23 @@ def main() -> None:
     voxel_size: float = 0.05
     tree: OcTree = OcTree(voxel_size)
 
-    # Until the sequence is finished:
+    # Construct the camera controller.
+    up: np.ndarray = np.array([0, -1, 0])
+    primary_camera: SimpleCamera = SimpleCamera([0, 0, 0], [0, 0, 1], up)
+    control_camera: KeyboardCameraController = KeyboardCameraController(
+        primary_camera, up, canonical_angular_speed=0.05, canonical_linear_speed=0.1
+    )
+
+    # noinspection PyUnusedLocal
+    pose: np.ndarray = np.eye(4)
     sequence_dir: str = "C:/spaint/build/bin/apps/spaintgui/sequences/Test2"
     frame_idx: int = 0
+
     while True:
         # Process any PyGame events.
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                tree.write_binary("online_fusion.bt")
                 pygame.quit()
                 sys.exit(0)
 
@@ -51,47 +64,46 @@ def main() -> None:
         depth_filename: str = os.path.join(sequence_dir, f"frame-{frame_idx:06d}.depth.png")
         pose_filename: str = os.path.join(sequence_dir, f"frame-{frame_idx:06d}.pose.txt")
 
-        # If the colour image doesn't exist, early out.
-        if not os.path.exists(colour_filename):
-            break
+        # If the colour image exists:
+        if os.path.exists(colour_filename):
+            # If the depth image exists:
+            if os.path.exists(depth_filename):
+                print(f"Processing frame {frame_idx}...")
 
-        # If the colour image exists but the depth image doesn't, skip the frame (it's likely that
-        # the user renamed the depth image to prevent this frame being used).
-        if not os.path.exists(depth_filename):
-            frame_idx += 1
-            continue
+                # Load the depth image and the pose.
+                depth_image: np.ndarray = ImageUtil.load_depth_image(depth_filename)
+                pose = PoseUtil.load_pose(pose_filename)
 
-        print(f"Processing frame {frame_idx}...")
+                # Use them to make an Octomap point cloud.
+                pcd: Pointcloud = OctomapUtil.make_point_cloud(depth_image, pose, intrinsics)
 
-        # Load the depth image and the pose.
-        depth_image: np.ndarray = ImageUtil.load_depth_image(depth_filename)
-        pose: np.ndarray = PoseUtil.load_pose(pose_filename)
+                # Fuse the point cloud into the octree.
+                start = timer()
+                origin: Vector3 = Vector3(0.0, 0.0, 0.0)
+                tree.insert_point_cloud(pcd, origin, discretize=True)
+                end = timer()
+                print(f"  - Time: {end - start}s")
+            else:
+                # Otherwise, advance the frame index (it's likely that the user renamed the depth image to prevent
+                # this frame being used).
+                frame_idx += 1
 
-        # Use them to make an Octomap point cloud.
-        pcd: Pointcloud = OctomapUtil.make_point_cloud(depth_image, pose, intrinsics)
-
-        # Fuse the point cloud into the octree.
-        start = timer()
-        origin: Vector3 = Vector3(0.0, 0.0, 0.0)
-        tree.insert_point_cloud(pcd, origin, discretize=True)
-        end = timer()
-        print(f"  - Time: {end - start}s")
+        # Allow the user to control the camera.
+        control_camera(pygame.key.get_pressed(), timer() * 1000)
 
         # Clear the colour and depth buffers.
         glClearColor(1.0, 1.0, 1.0, 1.0)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
         # Draw the octree.
-        OctomapUtil.draw_octree(tree, pose, drawer)
+        # OctomapUtil.draw_octree(tree, np.linalg.inv(pose), drawer)
+        OctomapUtil.draw_octree(tree, CameraPoseConverter.camera_to_pose(primary_camera), drawer)
 
         # Swap the front and back buffers.
         pygame.display.flip()
 
         # Increment the frame index.
         frame_idx += 1
-
-    # Finally, save the octree to a file for later use.
-    tree.write_binary("online_fusion.bt")
 
 
 if __name__ == "__main__":

@@ -1,10 +1,10 @@
 import numpy as np
 
 from OpenGL.GL import *
-from OpenGL.GLU import *
 from typing import Tuple
 
 from smg.pyoctomap import OcTree, OcTreeDrawer, Pointcloud, Pose6D
+from smg.rigging.helpers import CameraPoseConverter
 
 
 class OctomapUtil:
@@ -49,9 +49,7 @@ class OctomapUtil:
         """
         # Set the model-view matrix.
         glMatrixMode(GL_MODELVIEW)
-        glLoadIdentity()
-        gluLookAt(0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, -1.0, 0.0)
-        glMultMatrixf(np.linalg.inv(pose).flatten(order='F'))
+        glLoadMatrixf(CameraPoseConverter.pose_to_modelview(pose).flatten(order='F'))
 
         # Enable blending, lighting and materials.
         glEnable(GL_BLEND)
