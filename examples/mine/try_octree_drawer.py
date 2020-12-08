@@ -8,18 +8,21 @@ import pygame
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
+from time import perf_counter as timer
 from typing import Tuple
 
 from smg.pyoctomap import *
+from smg.rigging import SimpleCamera
 
 
-def draw_frame(drawer: OcTreeDrawer, height: float) -> None:
+def draw_frame(camera: SimpleCamera, drawer: OcTreeDrawer) -> None:
     glClearColor(1.0, 1.0, 1.0, 1.0)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
-    gluLookAt(0.0, -height * 1.5, height, 0.0, 0.0, height / 2, 0.0, 0.0, 1.0)
+    # gluLookAt(0.0, -height * 1.5, height, 0.0, 0.0, height / 2, 0.0, 0.0, 1.0)
+    gluLookAt(*camera.p(), *(camera.p() + camera.n()), *camera.v())
 
     glEnable(GL_BLEND)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
@@ -68,11 +71,46 @@ def main() -> None:
     height: float = 100.0
     i: int = 0
 
+    camera: SimpleCamera = SimpleCamera([0, -height * 1.5, height / 2], [0, 1, 0], [0, 0, 1])
+
+    prev_time_ms: float = timer() * 1000
+
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                tree.write_binary("octree_drawer.bt")
                 pygame.quit()
                 sys.exit(0)
+
+        cur_time_ms: float = timer() * 1000
+        canonical_frame_time_ms: int = 16
+        scaling_factor: float = (cur_time_ms - prev_time_ms) / canonical_frame_time_ms
+        prev_time_ms = cur_time_ms
+
+        pressed_keys = pygame.key.get_pressed()
+        speed: float = 1.0 * scaling_factor
+        angular_speed: float = 0.03 * scaling_factor
+        up: np.ndarray = np.array([0, 0, 1])
+        if pressed_keys[pygame.K_w]:
+            camera.move_n(speed)
+        if pressed_keys[pygame.K_s]:
+            camera.move_n(-speed)
+        if pressed_keys[pygame.K_d]:
+            camera.move_u(-speed)
+        if pressed_keys[pygame.K_a]:
+            camera.move_u(speed)
+        if pressed_keys[pygame.K_q]:
+            camera.move(up, speed)
+        if pressed_keys[pygame.K_e]:
+            camera.move(up, -speed)
+        if pressed_keys[pygame.K_RIGHT]:
+            camera.rotate(up, -angular_speed)
+        if pressed_keys[pygame.K_LEFT]:
+            camera.rotate(up, angular_speed)
+        if pressed_keys[pygame.K_UP]:
+            camera.rotate(camera.u(), angular_speed)
+        if pressed_keys[pygame.K_DOWN]:
+            camera.rotate(camera.u(), -angular_speed)
 
         if i < len(angles):
             horizontal_offset: Vector3 = offset.copy()
@@ -82,14 +120,9 @@ def main() -> None:
             tree.insert_ray(origin, origin + horizontal_offset * 0.5 + vertical_offset)
             drawer.set_octree(tree, origin_pose)
             i += 1
-        else:
-            pygame.time.wait(2048)
-            break
 
-        draw_frame(drawer, height)
+        draw_frame(camera, drawer)
         pygame.time.wait(1)
-
-    tree.write_binary("octree_drawer.bt")
 
 
 if __name__ == "__main__":
