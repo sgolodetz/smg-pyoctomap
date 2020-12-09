@@ -12,11 +12,11 @@ from time import perf_counter as timer
 from typing import Tuple
 
 from smg.pyoctomap import *
-from smg.rigging.cameras import SimpleCamera
+from smg.rigging.cameras import Camera, SimpleCamera
 from smg.rigging.controllers import KeyboardCameraController
 
 
-def draw_frame(camera: SimpleCamera, drawer: OcTreeDrawer) -> None:
+def draw_frame(camera: Camera, drawer: OcTreeDrawer) -> None:
     glClearColor(1.0, 1.0, 1.0, 1.0)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
@@ -71,9 +71,9 @@ def main() -> None:
     height: float = 100.0
     i: int = 0
 
-    up: np.ndarray = np.array([0, 0, 1])
-    camera: SimpleCamera = SimpleCamera([0, -height * 1.5, height / 2], [0, 1, 0], up)
-    control_camera: KeyboardCameraController = KeyboardCameraController(camera, up)
+    camera_controller: KeyboardCameraController = KeyboardCameraController(
+        SimpleCamera([0, -height * 1.5, height / 2], [0, 1, 0], [0, 0, 1])
+    )
 
     while True:
         for event in pygame.event.get():
@@ -91,8 +91,8 @@ def main() -> None:
             drawer.set_octree(tree, origin_pose)
             i += 1
 
-        control_camera(pygame.key.get_pressed(), timer() * 1000)
-        draw_frame(camera, drawer)
+        camera_controller.update(pygame.key.get_pressed(), timer() * 1000)
+        draw_frame(camera_controller.get_camera(), drawer)
         pygame.time.wait(1)
 
 
