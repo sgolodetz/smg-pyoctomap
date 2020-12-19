@@ -12,7 +12,6 @@ from typing import Tuple
 from smg.pyoctomap import *
 from smg.rigging.cameras import SimpleCamera
 from smg.rigging.controllers import KeyboardCameraController
-from smg.rigging.helpers import CameraPoseConverter
 from smg.utility import ImageUtil, PoseUtil
 
 

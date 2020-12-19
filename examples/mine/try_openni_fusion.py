@@ -14,7 +14,6 @@ from smg.pyoctomap import *
 from smg.pyorbslam2 import RGBDTracker
 from smg.rigging.cameras import SimpleCamera
 from smg.rigging.controllers import KeyboardCameraController
-from smg.rigging.helpers import CameraPoseConverter
 
 
 def main() -> None:
