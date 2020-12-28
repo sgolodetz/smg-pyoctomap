@@ -9,6 +9,7 @@ from OpenGL.GL import *
 from timeit import default_timer as timer
 from typing import Tuple
 
+from smg.opengl import OpenGLUtil
 from smg.pyoctomap import *
 from smg.rigging.cameras import SimpleCamera
 from smg.rigging.controllers import KeyboardCameraController
@@ -24,7 +25,7 @@ def main() -> None:
     # Set the projection matrix.
     glMatrixMode(GL_PROJECTION)
     intrinsics: Tuple[float, float, float, float] = (532.5694641250893, 531.5410880910171, 320.0, 240.0)
-    OctomapUtil.set_projection_matrix(intrinsics, *window_size)
+    OpenGLUtil.set_projection_matrix(intrinsics, *window_size)
 
     # Enable the z-buffer.
     glEnable(GL_DEPTH_TEST)
