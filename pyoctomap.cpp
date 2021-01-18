@@ -86,6 +86,14 @@ PYBIND11_MODULE(pyoctomap, m)
       py::call_guard<py::gil_scoped_release>()
     )
     .def(
+      "get_occupancy_thres",
+      [](const octomap::OcTree& self)
+      {
+        return self.getOccupancyThres();
+      },
+      py::call_guard<py::gil_scoped_release>()
+    )
+    .def(
       "insert_point_cloud",
       [](octomap::OcTree& self, const octomap::Pointcloud& scan, const octomap::point3d& sensor_origin,
          double maxrange, bool lazy_eval, bool discretize)
@@ -120,6 +128,14 @@ PYBIND11_MODULE(pyoctomap, m)
       },
       py::arg("value"), py::arg("depth") = 0,
       py::return_value_policy::reference, py::call_guard<py::gil_scoped_release>()
+    )
+    .def(
+      "set_occupancy_thres",
+      [](octomap::OcTree& self, double prob)
+      {
+        self.setOccupancyThres(prob);
+      },
+      py::call_guard<py::gil_scoped_release>()
     )
     .def(
       "update_node",
