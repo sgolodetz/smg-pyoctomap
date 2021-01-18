@@ -28,10 +28,10 @@ class OctomapUtil:
         glMatrixMode(GL_MODELVIEW)
         glLoadMatrixf(CameraPoseConverter.pose_to_modelview(pose).flatten(order='F'))
 
-        # Enable blending, lighting and materials.
-        glEnable(GL_BLEND)
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-
+        # # Enable blending, lighting and materials.
+        # glEnable(GL_BLEND)
+        # glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        #
         glEnable(GL_LIGHTING)
         glEnable(GL_LIGHT0)
         pos: np.ndarray = np.array([0.0, 2.0, -1.0, 0.0])
@@ -42,12 +42,22 @@ class OctomapUtil:
         # Draw the octree.
         origin_pose: Pose6D = Pose6D(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
         drawer.set_octree(tree, origin_pose)
-        drawer.draw()
 
-        # Disable blending, lighting and materials again.
+        glColorMask(False, False, False, False)
+        drawer.draw()
+        glColorMask(True, True, True, True)
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+        glPolygonOffset(-0.1, -1.0)
+        glEnable(GL_POLYGON_OFFSET_LINE)
+        drawer.draw()
+        glDisable(GL_POLYGON_OFFSET_LINE)
+        glPolygonOffset(0.0, 0.0)
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+
+        # # Disable blending, lighting and materials again.
         glDisable(GL_COLOR_MATERIAL)
         glDisable(GL_LIGHTING)
-        glDisable(GL_BLEND)
+        # glDisable(GL_BLEND)
 
     @staticmethod
     def make_point_cloud(depth_image: np.ndarray, pose: np.ndarray, intrinsics: Tuple[float, float, float, float]) \
