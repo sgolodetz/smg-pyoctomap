@@ -24,6 +24,21 @@ class OctomapUtil:
         :param drawer:  The octree drawer.
         :return:
         """
+        OctomapUtil.draw_octree_understandable(tree, pose, drawer)
+
+    @staticmethod
+    def draw_octree_octovis(tree: OcTree, pose: np.ndarray, drawer: OcTreeDrawer) -> None:
+        """
+        Visualise the specified octree from the specified pose in the style of Octovis.
+
+        .. note::
+            Octovis renders transparent cubes, which looks pretty but isn't always easy to understand.
+
+        :param tree:    The octree.
+        :param pose:    The current pose.
+        :param drawer:  The octree drawer.
+        :return:
+        """
         # Set the model-view matrix.
         glMatrixMode(GL_MODELVIEW)
         glLoadMatrixf(CameraPoseConverter.pose_to_modelview(pose).flatten(order='F'))
@@ -48,6 +63,56 @@ class OctomapUtil:
         glDisable(GL_COLOR_MATERIAL)
         glDisable(GL_LIGHTING)
         glDisable(GL_BLEND)
+
+    @staticmethod
+    def draw_octree_understandable(tree: OcTree, pose: np.ndarray, drawer: OcTreeDrawer, *,
+                                   render_filled_cubes: bool = True) -> None:
+        """
+        Visualise the specified octree from the specified pose in a way that is easy to understand.
+
+        .. note::
+            This method either (i) renders filled cubes with wireframe cubes over the top of them,
+            or (ii) just renders the wireframe cubes, but hiding the hidden edges.
+
+        :param tree:                The octree.
+        :param pose:                The current pose.
+        :param drawer:              The octree drawer.
+        :param render_filled_cubes: Whether to render the filled cubes.
+        """
+        # Set the model-view matrix.
+        glMatrixMode(GL_MODELVIEW)
+        glLoadMatrixf(CameraPoseConverter.pose_to_modelview(pose).flatten(order='F'))
+
+        # Enable lighting and materials.
+        glEnable(GL_LIGHTING)
+        glEnable(GL_LIGHT0)
+        pos: np.ndarray = np.array([0.0, 2.0, -1.0, 0.0])
+        glLightfv(GL_LIGHT0, GL_POSITION, pos)
+
+        glEnable(GL_COLOR_MATERIAL)
+
+        # Draw the octree.
+        origin_pose: Pose6D = Pose6D(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+        drawer.set_octree(tree, origin_pose)
+
+        if render_filled_cubes:
+            drawer.draw()
+        else:
+            glColorMask(False, False, False, False)
+            drawer.draw()
+            glColorMask(True, True, True, True)
+
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+        glPolygonOffset(-1.0, -1.0)
+        glEnable(GL_POLYGON_OFFSET_LINE)
+        drawer.draw()
+        glDisable(GL_POLYGON_OFFSET_LINE)
+        glPolygonOffset(0.0, 0.0)
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+
+        # Disable lighting and materials again.
+        glDisable(GL_COLOR_MATERIAL)
+        glDisable(GL_LIGHTING)
 
     @staticmethod
     def make_point_cloud(depth_image: np.ndarray, pose: np.ndarray, intrinsics: Tuple[float, float, float, float]) \
