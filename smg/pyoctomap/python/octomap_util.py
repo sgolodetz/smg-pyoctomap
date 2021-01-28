@@ -126,11 +126,10 @@ class OctomapUtil:
         :return:            The Octomap point cloud.
         """
         # Back-project the depth image to make a world-space points image.
-        height, width = depth_image.shape
-        ws_points: np.ndarray = np.zeros((height, width, 3), dtype=float)
-        GeometryUtil.compute_world_points_image_fast(depth_image, pose, intrinsics, ws_points)
+        ws_points: np.ndarray = GeometryUtil.compute_world_points_image_fast(depth_image, pose, intrinsics)
 
         # Convert the world-space points image to a flat array containing only the valid points.
+        height, width = depth_image.shape
         flat_mask: np.ndarray = np.where(depth_image != 0, 255, 0).reshape(height * width).astype(np.uint8)
         flat_ws_points: np.ndarray = ws_points.reshape((height * width, 3))
         valid_ws_points: np.ndarray = np.compress(flat_mask, flat_ws_points, axis=0)
@@ -154,11 +153,10 @@ class OctomapUtil:
         :return:            A tuple consisting of an uncoloured Octomap point cloud and a matching array of colours.
         """
         # Back-project the depth image to make a world-space points image.
-        height, width = depth_image.shape
-        ws_points: np.ndarray = np.zeros((height, width, 3), dtype=float)
-        GeometryUtil.compute_world_points_image_fast(depth_image, pose, intrinsics, ws_points)
+        ws_points: np.ndarray = GeometryUtil.compute_world_points_image_fast(depth_image, pose, intrinsics)
 
         # Convert the world-space points image to a flat array containing only the valid points.
+        height, width = depth_image.shape
         flat_mask: np.ndarray = np.where(depth_image != 0, 255, 0).reshape(height * width).astype(np.uint8)
         flat_ws_points: np.ndarray = ws_points.reshape((height * width, 3))
         valid_ws_points: np.ndarray = np.compress(flat_mask, flat_ws_points, axis=0)
