@@ -49,7 +49,7 @@ class OctomapUtil:
 
         glEnable(GL_LIGHTING)
         glEnable(GL_LIGHT0)
-        pos: np.ndarray = np.array([0.0, 2.0, -1.0, 0.0])
+        pos: np.ndarray = np.array([0.0, -2.0, -1.0, 0.0])
         glLightfv(GL_LIGHT0, GL_POSITION, pos)
 
         glEnable(GL_COLOR_MATERIAL)
@@ -86,7 +86,7 @@ class OctomapUtil:
         # Enable lighting and materials.
         glEnable(GL_LIGHTING)
         glEnable(GL_LIGHT0)
-        pos: np.ndarray = np.array([0.0, 2.0, -1.0, 0.0])
+        pos: np.ndarray = np.array([0.0, -2.0, -1.0, 0.0])
         glLightfv(GL_LIGHT0, GL_POSITION, pos)
 
         glEnable(GL_COLOR_MATERIAL)
