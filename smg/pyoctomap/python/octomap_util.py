@@ -15,34 +15,28 @@ class OctomapUtil:
     # PUBLIC STATIC METHODS
 
     @staticmethod
-    def draw_octree(tree: OcTree, pose: np.ndarray, drawer: OcTreeDrawer) -> None:
+    def draw_octree(tree: OcTree, drawer: OcTreeDrawer) -> None:
         """
-        Visualise the specified octree from the specified pose.
+        Draw the specified octree.
 
         :param tree:    The octree.
-        :param pose:    The current pose.
         :param drawer:  The octree drawer.
         :return:
         """
-        OctomapUtil.draw_octree_understandable(tree, pose, drawer)
+        OctomapUtil.draw_octree_understandable(tree, drawer)
 
     @staticmethod
-    def draw_octree_octovis(tree: OcTree, pose: np.ndarray, drawer: OcTreeDrawer) -> None:
+    def draw_octree_octovis(tree: OcTree, drawer: OcTreeDrawer) -> None:
         """
-        Visualise the specified octree from the specified pose in the style of Octovis.
+        Draw the specified octree in the style of Octovis.
 
         .. note::
             Octovis renders transparent cubes, which looks pretty but isn't always easy to understand.
 
         :param tree:    The octree.
-        :param pose:    The current pose.
         :param drawer:  The octree drawer.
         :return:
         """
-        # Set the model-view matrix.
-        glMatrixMode(GL_MODELVIEW)
-        glLoadMatrixf(CameraPoseConverter.pose_to_modelview(pose).flatten(order='F'))
-
         # Enable blending, lighting and materials.
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
@@ -65,24 +59,18 @@ class OctomapUtil:
         glDisable(GL_BLEND)
 
     @staticmethod
-    def draw_octree_understandable(tree: OcTree, pose: np.ndarray, drawer: OcTreeDrawer, *,
-                                   render_filled_cubes: bool = True) -> None:
+    def draw_octree_understandable(tree: OcTree, drawer: OcTreeDrawer, *, render_filled_cubes: bool = True) -> None:
         """
-        Visualise the specified octree from the specified pose in a way that is easy to understand.
+        Draw the specified octree in a way that is easy to understand.
 
         .. note::
             This method either (i) renders filled cubes with wireframe cubes over the top of them,
             or (ii) just renders the wireframe cubes, but hiding the hidden edges.
 
         :param tree:                The octree.
-        :param pose:                The current pose.
         :param drawer:              The octree drawer.
         :param render_filled_cubes: Whether to render the filled cubes.
         """
-        # Set the model-view matrix.
-        glMatrixMode(GL_MODELVIEW)
-        glLoadMatrixf(CameraPoseConverter.pose_to_modelview(pose).flatten(order='F'))
-
         # Enable lighting and materials.
         glEnable(GL_LIGHTING)
         glEnable(GL_LIGHT0)

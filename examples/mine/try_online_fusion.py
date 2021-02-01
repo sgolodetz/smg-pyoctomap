@@ -9,10 +9,11 @@ from OpenGL.GL import *
 from timeit import default_timer as timer
 from typing import Tuple
 
-from smg.opengl import OpenGLUtil
+from smg.opengl import OpenGLMatrixContext, OpenGLUtil
 from smg.pyoctomap import *
 from smg.rigging.cameras import SimpleCamera
 from smg.rigging.controllers import KeyboardCameraController
+from smg.rigging.helpers import CameraPoseConverter
 from smg.utility import ImageUtil, PoseUtil
 
 
@@ -22,10 +23,8 @@ def main() -> None:
     window_size: Tuple[int, int] = (640, 480)
     pygame.display.set_mode(window_size, pygame.DOUBLEBUF | pygame.OPENGL)
 
-    # Set the projection matrix.
-    glMatrixMode(GL_PROJECTION)
+    # Specify the camera intrinsics.
     intrinsics: Tuple[float, float, float, float] = (532.5694641250893, 531.5410880910171, 320.0, 240.0)
-    OpenGLUtil.set_projection_matrix(intrinsics, *window_size)
 
     # Enable the z-buffer.
     glEnable(GL_DEPTH_TEST)
@@ -93,9 +92,18 @@ def main() -> None:
         glClearColor(1.0, 1.0, 1.0, 1.0)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-        # Draw the octree.
-        # OctomapUtil.draw_octree(tree, np.linalg.inv(pose), drawer)
-        OctomapUtil.draw_octree(tree, camera_controller.get_pose(), drawer)
+        # Determine the viewing pose.
+        # viewing_pose: np.ndarray = np.linalg.inv(pose)
+        viewing_pose: np.ndarray = camera_controller.get_pose()
+
+        # Set the projection matrix.
+        with OpenGLMatrixContext(GL_PROJECTION, lambda: OpenGLUtil.set_projection_matrix(intrinsics, *window_size)):
+            # Set the model-view matrix.
+            with OpenGLMatrixContext(GL_MODELVIEW, lambda: OpenGLUtil.load_matrix(
+                CameraPoseConverter.pose_to_modelview(viewing_pose)
+            )):
+                # Draw the octree.
+                OctomapUtil.draw_octree(tree, drawer)
 
         # Swap the front and back buffers.
         pygame.display.flip()
