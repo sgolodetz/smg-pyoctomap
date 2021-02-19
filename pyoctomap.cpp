@@ -86,6 +86,15 @@ PYBIND11_MODULE(pyoctomap, m)
       py::call_guard<py::gil_scoped_release>()
     )
     .def(
+      "delete_node",
+      [](octomap::OcTree& self, const octomap::point3d& value, unsigned int depth)
+      {
+        return self.deleteNode(value, depth);
+      },
+      py::arg("value"), py::arg("depth") = 0,
+      py::call_guard<py::gil_scoped_release>()
+    )
+    .def(
       "get_occupancy_thres",
       [](const octomap::OcTree& self)
       {
@@ -127,6 +136,15 @@ PYBIND11_MODULE(pyoctomap, m)
         return self.search(value, depth);
       },
       py::arg("value"), py::arg("depth") = 0,
+      py::return_value_policy::reference, py::call_guard<py::gil_scoped_release>()
+    )
+    .def(
+      "set_node_value",
+      [](octomap::OcTree& self, const octomap::point3d& value, float log_odds_value, bool lazy_eval)
+      {
+        return self.setNodeValue(value, log_odds_value, lazy_eval);
+      },
+      py::arg("value"), py::arg("log_odds_value"), py::arg("lazy_eval") = false,
       py::return_value_policy::reference, py::call_guard<py::gil_scoped_release>()
     )
     .def(
