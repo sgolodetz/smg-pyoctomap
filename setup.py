@@ -18,7 +18,6 @@ setuptools.setup(
         "numpy",
         "pygame",
         "PyOpenGL",
-        "smg-rigging",
         "smg-utility"
     ],
     classifiers=[
