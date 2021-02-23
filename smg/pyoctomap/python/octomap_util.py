@@ -3,7 +3,6 @@ import numpy as np
 from OpenGL.GL import *
 from typing import Tuple
 
-from smg.rigging.helpers import CameraPoseConverter
 from smg.utility import GeometryUtil
 
 from ..cpp.pyoctomap import OcTree, OcTreeDrawer, Pointcloud, Pose6D
