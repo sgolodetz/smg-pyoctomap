@@ -15,10 +15,8 @@ setuptools.setup(
     packages=["smg.pyoctomap"],
     include_package_data=True,
     install_requires=[
-        "numpy",
-        "pygame",
-        "PyOpenGL",
-        "smg-utility"
+        "smg-opengl",
+        "smg-rigging"
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
