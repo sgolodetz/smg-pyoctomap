@@ -103,6 +103,14 @@ PYBIND11_MODULE(pyoctomap, m)
       py::call_guard<py::gil_scoped_release>()
     )
     .def(
+      "get_resolution",
+      [](const octomap::OcTree& self)
+      {
+        return self.getResolution();
+      },
+      py::call_guard<py::gil_scoped_release>()
+    )
+    .def(
       "insert_point_cloud",
       [](octomap::OcTree& self, const octomap::Pointcloud& scan, const octomap::point3d& sensor_origin,
          double maxrange, bool lazy_eval, bool discretize)
