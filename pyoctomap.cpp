@@ -138,6 +138,14 @@ PYBIND11_MODULE(pyoctomap, m)
       py::call_guard<py::gil_scoped_release>()
     )
     .def(
+      "read_binary",
+      [](octomap::OcTree& self, const std::string& filename)
+      {
+        return self.readBinary(filename);
+      },
+      py::call_guard<py::gil_scoped_release>()
+    )
+    .def(
       "search",
       [](octomap::OcTree& self, const octomap::point3d& value, unsigned int depth)
       {
