@@ -149,7 +149,9 @@ PYBIND11_MODULE(pyoctomap, m)
       "search",
       [](octomap::OcTree& self, const octomap::point3d& value, unsigned int depth)
       {
-        return self.search(value, depth);
+        octomap::OcTreeKey key;
+        if(self.coordToKeyChecked(value, key)) return self.search(key, depth);
+        else return (octomap::OcTreeNode*)NULL;
       },
       py::arg("value"), py::arg("depth") = 0,
       py::return_value_policy::reference, py::call_guard<py::gil_scoped_release>()
