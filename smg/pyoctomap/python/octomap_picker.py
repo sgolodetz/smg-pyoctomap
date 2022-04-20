@@ -45,6 +45,10 @@ class OctomapPicker:
             # Set the viewport to encompass the whole framebuffer.
             OpenGLUtil.set_viewport((0.0, 0.0), (1.0, 1.0), (self.__width, self.__height))
 
+            # Enable depth testing.
+            glDepthFunc(GL_LEQUAL)
+            glEnable(GL_DEPTH_TEST)
+
             # Clear the framebuffer.
             glClearColor(0.0, 0.0, 0.0, 1.0)
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
