@@ -130,6 +130,15 @@ PYBIND11_MODULE(pyoctomap, m)
       py::call_guard<py::gil_scoped_release>()
     )
     .def(
+      "is_in_bounds",
+      [](const octomap::OcTree& self, const octomap::point3d& value)
+      {
+        octomap::OcTreeKey key;
+        return self.coordToKeyChecked(value, key);
+      },
+      py::return_value_policy::reference, py::call_guard<py::gil_scoped_release>()
+    )
+    .def(
       "is_node_occupied",
       [](const octomap::OcTree& self, const octomap::OcTreeNode& occupancyNode)
       {
