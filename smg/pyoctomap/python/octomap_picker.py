@@ -3,7 +3,7 @@ import numpy as np
 from OpenGL.GL import *
 from typing import Tuple
 
-from smg.opengl import OpenGLDepthTestContext, OpenGLFrameBuffer, OpenGLMatrixContext, OpenGLUtil
+from smg.opengl import OpenGLDepthTestingContext, OpenGLFrameBuffer, OpenGLMatrixContext, OpenGLUtil
 from smg.rigging.helpers import CameraPoseConverter
 from smg.utility import GeometryUtil
 
@@ -43,7 +43,7 @@ class OctomapPicker:
         """
         with self.__framebuffer:
             # Enable depth testing.
-            with OpenGLDepthTestContext(GL_LEQUAL):
+            with OpenGLDepthTestingContext(GL_LEQUAL):
                 # Set the viewport to encompass the whole framebuffer.
                 OpenGLUtil.set_viewport((0.0, 0.0), (1.0, 1.0), (self.__width, self.__height))
 
