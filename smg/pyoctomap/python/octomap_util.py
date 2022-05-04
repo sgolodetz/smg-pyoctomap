@@ -1,7 +1,8 @@
 import numpy as np
+import os
 
 from OpenGL.GL import *
-from typing import Tuple
+from typing import Optional, Tuple
 
 from smg.utility import GeometryUtil
 
@@ -100,6 +101,22 @@ class OctomapUtil:
         # Disable lighting and materials again.
         glDisable(GL_COLOR_MATERIAL)
         glDisable(GL_LIGHTING)
+
+    @staticmethod
+    def load_octree(filename: str, *, initial_voxel_size: float = 0.1) -> Optional[OcTree]:
+        """
+        Try to load an octree from the specified file.
+
+        :param filename:            The file from which to load the octree.
+        :param initial_voxel_size:  The initial voxel size to use for the octree (doesn't really matter in practice).
+        :return:                    The octree, if it was successfully loaded, or None otherwise.
+        """
+        if os.path.exists(filename):
+            octree: OcTree = OcTree(initial_voxel_size)
+            octree.read_binary(filename)
+            return octree
+        else:
+            return None
 
     @staticmethod
     def make_point_cloud(depth_image: np.ndarray, pose: np.ndarray, intrinsics: Tuple[float, float, float, float]) \
