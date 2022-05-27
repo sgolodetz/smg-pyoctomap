@@ -7,6 +7,7 @@ from typing import Optional, Tuple
 from smg.utility import GeometryUtil
 
 from ..cpp.pyoctomap import OcTree, OcTreeDrawer, Pointcloud, Pose6D
+from .thread_safe_octree import ThreadSafeOcTree
 
 
 class OctomapUtil:
@@ -103,7 +104,7 @@ class OctomapUtil:
         glDisable(GL_LIGHTING)
 
     @staticmethod
-    def load_octree(filename: str, *, initial_voxel_size: float = 0.1) -> Optional[OcTree]:
+    def load_octree(filename: str, *, initial_voxel_size: float = 0.1) -> Optional[ThreadSafeOcTree]:
         """
         Try to load an octree from the specified file.
 
@@ -112,7 +113,7 @@ class OctomapUtil:
         :return:                    The octree, if it was successfully loaded, or None otherwise.
         """
         if os.path.exists(filename):
-            octree: OcTree = OcTree(initial_voxel_size)
+            octree: ThreadSafeOcTree = ThreadSafeOcTree(initial_voxel_size)
             octree.read_binary(filename)
             return octree
         else:
