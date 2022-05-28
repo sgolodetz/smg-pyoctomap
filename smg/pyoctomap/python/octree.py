@@ -2,7 +2,7 @@ import threading
 
 from typing import Optional
 
-from ..cpp.pyoctomap import OcTreeCpp, OcTreeNode, Pointcloud, Vector3
+from ..cpp.pyoctomap import OcTreeCpp, OcTreeDrawer, OcTreeNode, Pointcloud, Pose6D, Vector3
 
 
 class OcTree:
@@ -25,13 +25,17 @@ class OcTree:
         with self.__lock:
             return self.__octree.delete_node(value, depth)
 
+    def draw(self, drawer: OcTreeDrawer, origin_pose: Optional[Pose6D] = None) -> None:
+        if origin_pose is None:
+            origin_pose = Pose6D(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+
+        with self.__lock:
+            drawer.set_octree(self.__octree, origin_pose)
+            drawer.draw()
+
     def get_occupancy_thres(self) -> float:
         with self.__lock:
             return self.__octree.get_occupancy_thres()
-
-    def get_internal_octree(self) -> OcTreeCpp:
-        # FIXME: This should be removed in due course.
-        return self.__octree
 
     def get_resolution(self) -> float:
         with self.__lock:
@@ -53,10 +57,6 @@ class OcTree:
     def is_node_occupied(self, occupancy_node: OcTreeNode) -> bool:
         with self.__lock:
             return self.__octree.is_node_occupied(occupancy_node)
-
-    def lock(self) -> threading.Lock:
-        # FIXME: This should be removed in due course.
-        return self.__lock
 
     def read_binary(self, filename: str) -> bool:
         with self.__lock:

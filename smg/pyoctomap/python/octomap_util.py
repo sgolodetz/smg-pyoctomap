@@ -50,9 +50,7 @@ class OctomapUtil:
         glEnable(GL_COLOR_MATERIAL)
 
         # Draw the octree.
-        origin_pose: Pose6D = Pose6D(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-        drawer.set_octree(tree.get_internal_octree(), origin_pose)
-        drawer.draw()
+        tree.draw(drawer)
 
         # Disable blending, lighting and materials again.
         glDisable(GL_COLOR_MATERIAL)
@@ -81,14 +79,11 @@ class OctomapUtil:
         glEnable(GL_COLOR_MATERIAL)
 
         # Draw the octree.
-        origin_pose: Pose6D = Pose6D(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-        drawer.set_octree(tree.get_internal_octree(), origin_pose)
-
         if render_filled_cubes:
-            drawer.draw()
+            tree.draw(drawer)
         else:
             glColorMask(False, False, False, False)
-            drawer.draw()
+            tree.draw(drawer)
             glColorMask(True, True, True, True)
 
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
