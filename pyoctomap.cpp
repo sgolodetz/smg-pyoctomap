@@ -72,7 +72,7 @@ PYBIND11_MODULE(pyoctomap, m)
     )
   ;
 
-  py::class_<octomap::OcTree>(m, "OcTree")
+  py::class_<octomap::OcTree>(m, "OcTreeCpp")
     .def(py::init<double>(), py::call_guard<py::gil_scoped_release>())
     .def(py::init<std::string>(), py::call_guard<py::gil_scoped_release>())
     .def(

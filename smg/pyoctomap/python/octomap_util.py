@@ -6,8 +6,8 @@ from typing import Optional, Tuple
 
 from smg.utility import GeometryUtil
 
-from ..cpp.pyoctomap import OcTree, OcTreeDrawer, Pointcloud, Pose6D
-from .thread_safe_octree import ThreadSafeOcTree
+from ..cpp.pyoctomap import OcTreeDrawer, Pointcloud, Pose6D
+from .octree import OcTree
 
 
 class OctomapUtil:
@@ -51,7 +51,7 @@ class OctomapUtil:
 
         # Draw the octree.
         origin_pose: Pose6D = Pose6D(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-        drawer.set_octree(tree, origin_pose)
+        drawer.set_octree(tree.get_internal_octree(), origin_pose)
         drawer.draw()
 
         # Disable blending, lighting and materials again.
@@ -82,7 +82,7 @@ class OctomapUtil:
 
         # Draw the octree.
         origin_pose: Pose6D = Pose6D(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-        drawer.set_octree(tree, origin_pose)
+        drawer.set_octree(tree.get_internal_octree(), origin_pose)
 
         if render_filled_cubes:
             drawer.draw()
@@ -104,7 +104,7 @@ class OctomapUtil:
         glDisable(GL_LIGHTING)
 
     @staticmethod
-    def load_octree(filename: str, *, initial_voxel_size: float = 0.1) -> Optional[ThreadSafeOcTree]:
+    def load_octree(filename: str, *, initial_voxel_size: float = 0.1) -> Optional[OcTree]:
         """
         Try to load an octree from the specified file.
 
@@ -113,7 +113,7 @@ class OctomapUtil:
         :return:                    The octree, if it was successfully loaded, or None otherwise.
         """
         if os.path.exists(filename):
-            octree: ThreadSafeOcTree = ThreadSafeOcTree(initial_voxel_size)
+            octree: OcTree = OcTree(initial_voxel_size)
             octree.read_binary(filename)
             return octree
         else:

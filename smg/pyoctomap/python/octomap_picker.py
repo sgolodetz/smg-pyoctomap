@@ -7,7 +7,8 @@ from smg.opengl import OpenGLDepthTestingContext, OpenGLFrameBuffer, OpenGLMatri
 from smg.rigging.helpers import CameraPoseConverter
 from smg.utility import GeometryUtil
 
-from ..cpp.pyoctomap import OcTree, OcTreeDrawer, Pose6D
+from ..cpp.pyoctomap import OcTreeDrawer, Pose6D
+from .octree import OcTree
 
 
 class OctomapPicker:
@@ -61,7 +62,7 @@ class OctomapPicker:
                     )):
                         # Draw the octree.
                         origin_pose: Pose6D = Pose6D(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-                        self.__drawer.set_octree(self.__tree, origin_pose)
+                        self.__drawer.set_octree(self.__tree.get_internal_octree(), origin_pose)
                         self.__drawer.draw()
 
                         # Get the contents of the depth buffer.
