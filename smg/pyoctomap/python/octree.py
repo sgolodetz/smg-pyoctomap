@@ -6,15 +6,20 @@ from ..cpp.pyoctomap import OcTreeCpp, OcTreeDrawer, OcTreeNode, Pointcloud, Pos
 
 
 class OcTree:
-    """A thread-safe wrapper around a C++ OcTree."""
+    """
+    A thread-safe wrapper around a C++ OcTree.
+
+    .. note::
+        Basic descriptions of the methods are given here. More detailed ones can be found in the Octomap source code.
+    """
 
     # CONSTRUCTOR
 
     def __init__(self, resolution: float):
         """
-        TODO
+        Construct a thread-safe wrapper around a C++ OcTree.
 
-        :param resolution:  TODO
+        :param resolution:  The voxel size of the octree's leaves.
         """
         self.__lock: threading.Lock = threading.Lock()
         self.__octree: OcTreeCpp = OcTreeCpp(resolution)
@@ -24,36 +29,42 @@ class OcTree:
     def cast_ray(self, origin: Vector3, direction: Vector3, end: Vector3,
                  ignore_unknown_cells: bool = False, max_range: float = -1.0) -> bool:
         """
-        TODO
+        Cast a ray from the specified origin in the specified direction, and return the first non-free cell in 'end'.
 
-        :param origin:                  TODO
-        :param direction:               TODO
-        :param end:                     TODO
-        :param ignore_unknown_cells:    TODO
-        :param max_range:               TODO
-        :return:                        TODO
+        .. note::
+            If the origin itself is either occupied or unknown, it will be returned.
+
+        :param origin:                  The origin of the ray.
+        :param direction:               The direction of the ray.
+        :param end:                     A vector into which to store the (centre of the) first non-free cell on the ray.
+        :param ignore_unknown_cells:    Whether to treat unknown cells as free.
+        :param max_range:               The maximum range after which the raycast will be aborted (if this is <= 0,
+                                        no limit will be imposed).
+        :return:                        True, if the ray hits an occupied cell, or False if either (i) the maximum
+                                        range or octree bounds are hit, or (ii) an unknown node is hit.
         """
         with self.__lock:
             return self.__octree.cast_ray(origin, direction, end, ignore_unknown_cells, max_range)
 
     def delete_node(self, value: Vector3, depth: int = 0) -> bool:
         """
-        TODO
+        Delete the octree node at the specified depth that contains the specified 3D point (if it exists).
 
-        :param value:   TODO
-        :param depth:   TODO
-        :return:        TODO
+        :param value:   The specified 3D point.
+        :param depth:   The specified depth.
+        :return:        True, if the node was successfully deleted, or False otherwise.
         """
         with self.__lock:
             return self.__octree.delete_node(value, depth)
 
     def draw(self, drawer: OcTreeDrawer, origin_pose: Optional[Pose6D] = None) -> None:
         """
-        TODO
+        Draw the octree using the specified drawer.
 
-        :param drawer:      TODO
-        :param origin_pose: TODO
+        :param drawer:      The drawer with which to draw the octree.
+        :param origin_pose: The global transformation (if any) that should be applied when drawing the octree.
         """
+        # Use the identity transformation for the global transformation by default.
         if origin_pose is None:
             origin_pose = Pose6D(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
 
@@ -63,18 +74,18 @@ class OcTree:
 
     def get_occupancy_thres(self) -> float:
         """
-        TODO
+        Get the probability threshold for a node to be occupied.
 
-        :return:    TODO
+        :return:    The probability threshold for a node to be occupied.
         """
         with self.__lock:
             return self.__octree.get_occupancy_thres()
 
     def get_resolution(self) -> float:
         """
-        TODO
+        Get the voxel size of the octree's leaves.
 
-        :return:    TODO
+        :return:    The voxel size of the octree's leaves.
         """
         with self.__lock:
             return self.__octree.get_resolution()
@@ -82,26 +93,33 @@ class OcTree:
     def insert_point_cloud(self, scan: Pointcloud, sensor_origin: Vector3, max_range: float = -1.0,
                            lazy_eval: bool = False, discretize: bool = False) -> None:
         """
-        TODO
+        Integrate a point cloud into the octree.
 
-        :param scan:            TODO
-        :param sensor_origin:   TODO
-        :param max_range:       TODO
-        :param lazy_eval:       TODO
-        :param discretize:      TODO
+        .. note::
+            In practice, setting discretize to True tends to make things a lot faster.
+
+        :param scan:            The point cloud (end points of all rays).
+        :param sensor_origin:   The origin of the sensor (start point of each ray).
+        :param max_range:       The maximum range over which individual rays will be inserted (-1 = complete rays).
+        :param lazy_eval:       Whether to omit the update of inner octree nodes after the insertion. This makes things
+                                faster, but at the cost of requiring a later call to update the inner nodes.
+        :param discretize:      Whether to discretise the scan into octree key cells prior to integration. This reduces
+                                the number of raycasts, resulting in a potential speed-up.
         """
         with self.__lock:
             self.__octree.insert_point_cloud(scan, sensor_origin, max_range, lazy_eval, discretize)
 
     def insert_ray(self, origin: Vector3, end: Vector3, max_range: float = -1.0, lazy_eval: bool = False) -> bool:
         """
-        TODO
+        Insert a single ray into the octree.
 
-        :param origin:      TODO
-        :param end:         TODO
-        :param max_range:   TODO
-        :param lazy_eval:   TODO
-        :return:            TODO
+        :param origin:      The origin of the ray.
+        :param end:         The end point of the ray.
+        :param max_range:   The maximum range after which the raycast will be aborted (if this is <= 0, no limit will
+                            be imposed).
+        :param lazy_eval:   Whether to omit the update of inner octree nodes after the insertion. This makes things
+                            faster, but at the cost of requiring a later call to update the inner nodes.
+        :return:            True, if the operation succeeded, or False otherwise.
         """
         with self.__lock:
             return self.__octree.insert_ray(origin, end, max_range, lazy_eval)
