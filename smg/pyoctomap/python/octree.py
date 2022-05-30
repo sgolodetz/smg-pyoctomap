@@ -129,7 +129,7 @@ class OcTree:
         Query whether or not the specified 3D position is within the octree bounds.
 
         :param position:    The specified 3D position.
-        :return:            True, if the point is within the octree bounds, or False otherwise.
+        :return:            True, if the specified 3D position is within the octree bounds, or False otherwise.
         """
         with self.__lock:
             return self.__octree.is_in_bounds(position)
