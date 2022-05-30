@@ -6,7 +6,8 @@ from typing import Optional, Tuple
 
 from smg.utility import GeometryUtil
 
-from ..cpp.pyoctomap import OcTree, OcTreeDrawer, Pointcloud, Pose6D
+from ..cpp.pyoctomap import OcTreeDrawer, Pointcloud, Pose6D
+from .octree import OcTree
 
 
 class OctomapUtil:
@@ -49,9 +50,7 @@ class OctomapUtil:
         glEnable(GL_COLOR_MATERIAL)
 
         # Draw the octree.
-        origin_pose: Pose6D = Pose6D(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-        drawer.set_octree(tree, origin_pose)
-        drawer.draw()
+        tree.draw(drawer)
 
         # Disable blending, lighting and materials again.
         glDisable(GL_COLOR_MATERIAL)
@@ -80,14 +79,11 @@ class OctomapUtil:
         glEnable(GL_COLOR_MATERIAL)
 
         # Draw the octree.
-        origin_pose: Pose6D = Pose6D(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-        drawer.set_octree(tree, origin_pose)
-
         if render_filled_cubes:
-            drawer.draw()
+            tree.draw(drawer)
         else:
             glColorMask(False, False, False, False)
-            drawer.draw()
+            tree.draw(drawer)
             glColorMask(True, True, True, True)
 
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
