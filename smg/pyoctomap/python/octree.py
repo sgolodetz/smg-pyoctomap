@@ -46,16 +46,16 @@ class OcTree:
         with self.__lock:
             return self.__octree.cast_ray(origin, direction, end, ignore_unknown_cells, max_range)
 
-    def delete_node(self, value: Vector3, depth: int = 0) -> bool:
+    def delete_node(self, position: Vector3, depth: int = 0) -> bool:
         """
-        Delete the octree node at the specified depth that contains the specified 3D point (if it exists).
+        Delete the octree node at the specified depth that contains the specified 3D position (if it exists).
 
-        :param value:   The specified 3D point.
-        :param depth:   The specified depth.
-        :return:        True, if the node was successfully deleted, or False otherwise.
+        :param position:    The specified 3D position.
+        :param depth:       The specified depth.
+        :return:            True, if the node was successfully deleted, or False otherwise.
         """
         with self.__lock:
-            return self.__octree.delete_node(value, depth)
+            return self.__octree.delete_node(position, depth)
 
     def draw(self, drawer: OcTreeDrawer, origin_pose: Optional[Pose6D] = None) -> None:
         """
@@ -124,86 +124,88 @@ class OcTree:
         with self.__lock:
             return self.__octree.insert_ray(origin, end, max_range, lazy_eval)
 
-    def is_in_bounds(self, value: Vector3) -> bool:
+    def is_in_bounds(self, position: Vector3) -> bool:
         """
-        TODO
+        Query whether or not the specified 3D position is within the octree bounds.
 
-        :param value:   TODO
-        :return:        TODO
+        :param position:    The specified 3D position.
+        :return:            True, if the point is within the octree bounds, or False otherwise.
         """
         with self.__lock:
-            return self.__octree.is_in_bounds(value)
+            return self.__octree.is_in_bounds(position)
 
     def is_node_occupied(self, occupancy_node: OcTreeNode) -> bool:
         """
-        TODO
+        Query whether or not the specified octree node is occupied.
 
-        :param occupancy_node:  TODO
-        :return:                TODO
+        :param occupancy_node:  The specified octree node.
+        :return:                True, if the specified octree node is occupied, or False otherwise.
         """
         with self.__lock:
             return self.__octree.is_node_occupied(occupancy_node)
 
     def read_binary(self, filename: str) -> bool:
         """
-        TODO
+        Replace the octree with one loaded from a binary file.
 
-        :param filename:    TODO
-        :return:            TODO
+        :param filename:    The file from which to read the new octree.
+        :return:            True, if the operation succeeds, or False otherwise.
         """
         with self.__lock:
             return self.__octree.read_binary(filename)
 
-    def search(self, value: Vector3, depth: int = 0) -> Optional[OcTreeNode]:
+    def search(self, position: Vector3, depth: int = 0) -> Optional[OcTreeNode]:
         """
-        TODO
+        Search for an octree node at the specified 3D position and depth in the octree.
 
-        :param value:   TODO
-        :param depth:   TODO
-        :return:        TODO
+        :param position:    The specified 3D position.
+        :param depth:       The specified depth in the octree.
+        :return:            The node, if found, or None otherwise.
         """
         with self.__lock:
-            return self.__octree.search(value, depth)
+            return self.__octree.search(position, depth)
 
-    def set_node_value(self, value: Vector3, log_odds_value: float, lazy_eval: bool = False) -> OcTreeNode:
+    def set_node_value(self, position: Vector3, log_odds_value: float, lazy_eval: bool = False) -> OcTreeNode:
         """
-        TODO
+        Set the log-odds value of the octree node with the specified 3D position to the specified value.
 
-        :param value:           TODO
-        :param log_odds_value:  TODO
-        :param lazy_eval:       TODO
-        :return:                TODO
+        :param position:        The specified 3D position.
+        :param log_odds_value:  The log-odds value to set for the node.
+        :param lazy_eval:       Whether to omit the update of inner octree nodes after the update. This makes things
+                                faster, but at the cost of requiring a later call to update the inner nodes.
+        :return:                The updated node.
         """
         with self.__lock:
-            return self.__octree.set_node_value(value, log_odds_value, lazy_eval)
+            return self.__octree.set_node_value(position, log_odds_value, lazy_eval)
 
     def set_occupancy_thres(self, prob: float) -> None:
         """
-        TODO
+        Set the probability threshold for a node to be occupied.
 
-        :param prob:    TODO
+        :param prob:    The probability threshold for a node to be occupied.
         """
         with self.__lock:
             self.__octree.set_occupancy_thres(prob)
 
-    def update_node(self, value: Vector3, occupied: bool, lazy_eval: bool = False) -> OcTreeNode:
+    def update_node(self, position: Vector3, occupied: bool, lazy_eval: bool = False) -> OcTreeNode:
         """
-        TODO
+        Integrate an occupancy measurement into the node with the specified 3D position.
 
-        :param value:       TODO
-        :param occupied:    TODO
-        :param lazy_eval:   TODO
-        :return:            TODO
+        :param position:    The specified 3D position.
+        :param occupied:    Whether or not the node was measured as being occupied.
+        :param lazy_eval:   Whether to omit the update of inner octree nodes after the update. This makes things
+                            faster, but at the cost of requiring a later call to update the inner nodes.
+        :return:            The updated node.
         """
         with self.__lock:
-            return self.__octree.update_node(value, occupied, lazy_eval)
+            return self.__octree.update_node(position, occupied, lazy_eval)
 
     def write_binary(self, filename: str) -> bool:
         """
-        TODO
+        Write a binary representation of the octree to the specified file.
 
-        :param filename:    TODO
-        :return:            TODO
+        :param filename:    The file to which to write the octree.
+        :return:            True, if the operation succeeded, or False otherwise.
         """
         with self.__lock:
             return self.__octree.write_binary(filename)
