@@ -2,6 +2,21 @@ cmake_minimum_required(VERSION 3.10)
 
 PROJECT(pyoctomap LANGUAGES CXX)
 
+#################
+# Find pybind11 #
+#################
+
+IF(SKBUILD)
+  # Scikit-Build does not add your site-packages to the search path automatically, so we need to add it
+  # _or_ the pybind11 specific directory here.
+  EXECUTE_PROCESS(
+    COMMAND "${PYTHON_EXECUTABLE}" -c "import pybind11; print(pybind11.get_cmake_dir())"
+    OUTPUT_VARIABLE _tmp_dir
+    OUTPUT_STRIP_TRAILING_WHITESPACE COMMAND_ECHO STDOUT
+  )
+  LIST(APPEND CMAKE_PREFIX_PATH "${_tmp_dir}")
+ENDIF()
+
 FIND_PACKAGE(pybind11 CONFIG REQUIRED)
 
 ###########################
@@ -29,21 +44,21 @@ INCLUDE_DIRECTORIES(${pybind11_INCLUDE_DIRS})
 # Specify the target #
 ######################
 
-ADD_LIBRARY(${targetname} SHARED ${targetname}.cpp ${targetname}.pyi)
-SET_TARGET_PROPERTIES(${targetname} PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}" SUFFIX "${PYTHON_MODULE_EXTENSION}")
+PYBIND11_ADD_MODULE(${targetname} SHARED ${targetname}.cpp smg/${targetname}/cpp/${targetname}.pyi)
+TARGET_COMPILE_DEFINITIONS(${targetname} PRIVATE VERSION_INFO=${PROJECT_VERSION})
 
 #################################
 # Specify the libraries to link #
 #################################
 
-TARGET_LINK_LIBRARIES(${targetname} debug pybind11::module optimized pybind11::module)
 INCLUDE(${PROJECT_SOURCE_DIR}/cmake/LinkOctomap.cmake)
 INCLUDE(${PROJECT_SOURCE_DIR}/cmake/LinkOpenGL.cmake)
 INCLUDE(${PROJECT_SOURCE_DIR}/cmake/LinkQGLViewer.cmake)
 INCLUDE(${PROJECT_SOURCE_DIR}/cmake/LinkQt5.cmake)
 
-##########################################
-# Copy resource files to the right place #
-##########################################
+#################################
+# Specify the things to install #
+#################################
 
-ADD_CUSTOM_COMMAND(TARGET ${targetname} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${PROJECT_SOURCE_DIR}/${targetname}.pyi" "$<TARGET_FILE_DIR:${targetname}>")
+INSTALL(TARGETS ${targetname} DESTINATION .)
+INSTALL(FILES ${QGLVIEWER_RUNTIMELIBS} DESTINATION .)

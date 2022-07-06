@@ -2,4 +2,4 @@
 # LinkOpenGL.cmake #
 ####################
 
-TARGET_LINK_LIBRARIES(${targetname} ${OPENGL_LIBRARY})
+TARGET_LINK_LIBRARIES(${targetname} PRIVATE ${OPENGL_LIBRARY})

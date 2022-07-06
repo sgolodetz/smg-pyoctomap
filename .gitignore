@@ -2,7 +2,9 @@
 __pycache__/
 build/
 dist/
-smg/pyoctomap/cpp/
+smg/pyoctomap/cpp/*.dll
+smg/pyoctomap/cpp/*.lib
+smg/pyoctomap/cpp/*.pyd
 *.bt
 *.egg-info/
 *.ot
