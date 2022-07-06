@@ -51,13 +51,20 @@ Note: Please read the [top-level README](https://github.com/sgolodetz/smglib/blo
 
    ix. To run `C:/octomap/install-release/bin/octovis.exe`, set the `QT_PLUGIN_PATH` environment variable (at the system level) to `C:\Qt\5.14.2\5.14.2\msvc2017_64\plugins`, and copy the QGLViewer and Qt5 DLLs across to the `C:/octomap/install-release/bin` directory. Note that setting `QT_PLUGIN_PATH` in this way will temporarily prevent Qt Creator from running. To fix this, you can simply remove the `QT_PLUGIN_PATH` environment variable again (or rename it).
 
-3. Back in the terminal, now change to the `<root>/smg-pyoctomap` directory.
+3. Set (at a system level, not in the terminal) the following environment variables:
+   
+   ```
+   SMGLIB_OCTOMAP_DIR=C:/octomap
+   SMGLIB_Qt5_DIR=C:/Qt/5.14.2/5.14.2/msvc2017_64/lib/cmake/Qt5
+   ```
 
-4. Check out the `master` branch.
+4. Re-open the terminal, and change to the `<root>/smg-pyoctomap` directory.
 
-5. Activate the Conda environment, e.g. `conda activate smglib`.
+5. Check out the `master` branch.
 
-6. Run `pip install -e .` to install the package.
+6. Activate the Conda environment, e.g. `conda activate smglib`.
+
+7. Run `pip install -e .` to install the package.
 
 ### Publications
 
