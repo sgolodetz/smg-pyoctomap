@@ -2,8 +2,8 @@
 # UseOctomap.cmake #
 ####################
 
-SET(OCTOMAP_ROOT_DIR_DEBUG "${PROJECT_SOURCE_DIR}/../../octomap/install-debug" CACHE PATH "The Octomap root directory")
-SET(OCTOMAP_ROOT_DIR_RELEASE "${PROJECT_SOURCE_DIR}/../../octomap/install-release" CACHE PATH "The Octomap root directory")
+SET(OCTOMAP_ROOT_DIR_DEBUG "$ENV{SMGLIB_OCTOMAP_DIR}/install-debug" CACHE PATH "The Octomap root directory")
+SET(OCTOMAP_ROOT_DIR_RELEASE "$ENV{SMGLIB_OCTOMAP_DIR}/install-release" CACHE PATH "The Octomap root directory")
 
 SET(OCTOMAP_INCLUDE_DIR "${OCTOMAP_ROOT_DIR_RELEASE}/include")
 
