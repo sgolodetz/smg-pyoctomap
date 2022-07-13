@@ -4,7 +4,7 @@ This Python package provides Python bindings for Octomap.
 
 It is a submodule of [smglib](https://github.com/sgolodetz/smglib), the open-source Python framework associated with our drone research in the [Cyber-Physical Systems](https://www.cs.ox.ac.uk/activities/cyberphysical/) group at the University of Oxford.
 
-### Development Installation (as part of smglib)
+### Installation (as part of smglib)
 
 Note: Please read the [top-level README](https://github.com/sgolodetz/smglib/blob/master/README.md) for smglib before following these instructions.
 
