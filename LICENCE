@@ -17,6 +17,15 @@ You are not permitted under this Licence to use this Software commercially. Use 
 (3)	use of the Software or any derivative of it for research with the final aim of developing non-software products for sale or license to a third party, or
 (4)	use of the Software to provide any service to an external organisation for which payment is received.
 
-If you are interested in using the Software commercially, please contact the Cyber-Physical Systems Group directly to negotiate a licence.
-
 Contact details are: niki.trigoni@cs.ox.ac.uk or andrew.markham@cs.ox.ac.uk.
+
+THIRD-PARTY CODE
+
+Octomap is distributed under the New BSD License. See:
+
+http://octomap.github.io
+http://opensource.org/licenses/BSD-3-Clause
+
+The heightcolouring branch in our fork (https://github.com/sgolodetz/octomap) makes a few changes to get the code building on Windows and to change the colour scheme to use our coordinate system. See:
+
+https://github.com/OctoMap/octomap/compare/devel...sgolodetz:octomap:heightcolouring
